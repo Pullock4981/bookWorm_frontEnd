@@ -1,5 +1,26 @@
 @import "tailwindcss";
-@plugin "daisyui";
+
+@plugin "daisyui" {
+  themes: [ {
+    bookworm: {
+      "primary": "#8B4513",
+        "secondary": "#D7CCC8",
+        "accent": "#2E7D32",
+        "neutral": "#3E2723",
+        "base-100": "#FDF5E6", // Old Lace (Paper feel)
+        "info": "#3ABFF8",
+        "success": "#36D399",
+        "warning": "#FBBD23",
+        "error": "#F87272",
+    }
+
+    ,
+  }
+
+  ,
+  "dark",
+  ];
+}
 
 :root {
   --background: #ffffff;
