@@ -11,10 +11,10 @@ const UserDashboard = () => {
         <ProtectedRoute>
             <div className="flex flex-col min-h-screen bg-base-100">
                 <Navbar />
-                <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full">
-                    <header className="mb-12">
-                        <h1 className="text-5xl font-black text-base-content mb-2 italic tracking-tighter">Your Dashboard</h1>
-                        <p className="text-base-content/60 text-lg font-medium">Welcome back! Here's an overview of your reading journey.</p>
+                <main className="flex-grow max-w-screen-2xl mx-auto px-8 py-12 w-full">
+                    <header className="mb-8">
+                        <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Your Dashboard</h1>
+                        <p className="text-base-content/50 text-sm font-medium">Welcome back! Here's an overview of your reading journey.</p>
                     </header>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
@@ -44,8 +44,8 @@ const UserDashboard = () => {
                     </div>
 
                     <div className="bg-primary/5 rounded-[3rem] p-12 text-center border border-primary/10">
-                        <h2 className="text-3xl font-black text-base-content mb-4 italic">Recommended for You</h2>
-                        <p className="text-base-content/60 mb-8 max-w-md mx-auto font-medium">Coming Soon: AI-powered book recommendations based on your reading history.</p>
+                        <h2 className="text-xl font-black text-base-content mb-3">Recommended for You</h2>
+                        <p className="text-base-content/50 mb-8 max-w-md mx-auto text-sm font-medium">Coming Soon: AI-powered book recommendations based on your reading history.</p>
                         <div className="flex justify-center gap-4">
                             <button className="btn btn-primary rounded-xl px-8 font-black shadow-lg shadow-primary/20">Explore Now</button>
                         </div>

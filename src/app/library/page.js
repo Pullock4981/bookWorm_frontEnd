@@ -38,7 +38,7 @@ const MyLibrary = () => {
             const data = await libraryService.getMyLibrary();
             setLibraryItems(data || []);
         } catch (err) {
-            console.error(err);
+            console.error('Failed to fetch library:', err?.message || err);
         } finally {
             setLoading(false);
         }
@@ -93,11 +93,11 @@ const MyLibrary = () => {
             <div className="flex flex-col min-h-screen bg-base-100">
                 <Navbar />
 
-                <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full">
-                    <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <main className="flex-grow max-w-screen-2xl mx-auto px-8 py-12 w-full">
+                    <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div>
-                            <h1 className="text-5xl font-black text-base-content mb-2 italic">My Library</h1>
-                            <p className="text-base-content/60 text-lg font-medium">Your personal collection and reading progress.</p>
+                            <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">My Library</h1>
+                            <p className="text-base-content/50 text-sm font-medium">Your personal collection and reading progress.</p>
                         </div>
                         <div className="flex bg-base-200 shadow-sm p-1.5 rounded-2xl border border-primary/10">
                             {shelves.map(shelf => (

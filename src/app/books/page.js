@@ -10,11 +10,11 @@ const BrowseBooks = () => {
         <ProtectedRoute>
             <div className="flex flex-col min-h-screen bg-base-100">
                 <Navbar />
-                <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full">
-                    <header className="mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+                <main className="flex-grow max-w-screen-2xl mx-auto px-8 py-12 w-full">
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-center gap-6">
                         <div>
-                            <h1 className="text-5xl font-black text-base-content mb-2 italic tracking-tighter">Browse Collection</h1>
-                            <p className="text-base-content/60 text-lg font-medium">Find your next great adventure among thousands of titles.</p>
+                            <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Browse Collection</h1>
+                            <p className="text-base-content/50 text-sm font-medium">Find your next great adventure among thousands of titles.</p>
                         </div>
                         <div className="flex gap-2 w-full md:w-auto">
                             <div className="relative flex-grow md:w-80">

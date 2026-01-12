@@ -11,7 +11,7 @@ const Footer = () => {
             {/* Soft Ambient Glow */}
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
 
-            <div className="max-w-7xl mx-auto px-8 pt-16 pb-10 relative z-10">
+            <div className="max-w-screen-2xl mx-auto px-8 pt-16 pb-10 relative z-10">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                     {/* Branding Section */}
                     <div className="space-y-6">

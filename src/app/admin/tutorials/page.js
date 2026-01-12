@@ -9,10 +9,10 @@ const ManageTutorials = () => {
         <ProtectedRoute adminOnly={true}>
             <AdminLayout>
                 <div className="p-6 md:p-12">
-                    <header className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
                         <div>
-                            <h1 className="text-5xl font-black text-base-content mb-2 tracking-tighter uppercase">Video Library</h1>
-                            <p className="text-base-content/60 text-lg font-medium">Manage tutorial content and embed YouTube guides.</p>
+                            <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Video Library</h1>
+                            <p className="text-base-content/50 text-sm font-medium">Manage tutorial content and embed YouTube guides.</p>
                         </div>
                         <button className="btn btn-primary rounded-2xl px-8 font-black shadow-xl shadow-primary/20">
                             <Plus size={20} /> Add Tutorial
@@ -20,9 +20,9 @@ const ManageTutorials = () => {
                     </header>
 
                     <div className="bg-base-200 p-20 rounded-[4rem] text-center border border-primary/5">
-                        <Youtube size={80} className="mx-auto text-primary/10 mb-6" />
-                        <h2 className="text-2xl font-black text-base-content/50 uppercase tracking-widest">No Tutorials Yet</h2>
-                        <p className="text-base-content/30 mt-2 font-medium">Start by adding your first video guide.</p>
+                        <Youtube size={48} className="mx-auto text-primary/10 mb-6" />
+                        <h2 className="text-lg font-black text-base-content/50 uppercase tracking-widest">No Tutorials Yet</h2>
+                        <p className="text-base-content/30 mt-2 text-sm font-medium">Start by adding your first video guide.</p>
                     </div>
                 </div>
             </AdminLayout>

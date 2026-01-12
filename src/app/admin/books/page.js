@@ -9,10 +9,10 @@ const ManageBooks = () => {
         <ProtectedRoute adminOnly={true}>
             <AdminLayout>
                 <div className="p-6 md:p-12">
-                    <header className="mb-12 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
                         <div>
-                            <h1 className="text-5xl font-black text-base-content mb-2 tracking-tighter uppercase">Inventory</h1>
-                            <p className="text-base-content/60 text-lg font-medium">Manage and organize the entire book catalog.</p>
+                            <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Inventory</h1>
+                            <p className="text-base-content/50 text-sm font-medium">Manage and organize the entire book catalog.</p>
                         </div>
                         <button className="btn btn-primary rounded-2xl px-8 font-black shadow-xl shadow-primary/20">
                             <Plus size={20} /> Add New Book

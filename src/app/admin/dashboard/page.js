@@ -9,9 +9,9 @@ const AdminDashboard = () => {
         <ProtectedRoute adminOnly={true}>
             <AdminLayout>
                 <div className="p-6 md:p-12">
-                    <header className="mb-12">
-                        <h1 className="text-5xl font-black text-base-content mb-2 italic tracking-tighter uppercase">Admin Console</h1>
-                        <p className="text-base-content/60 text-lg font-medium underline decoration-primary decoration-4 underline-offset-8">Managing BookWorm Eco-system.</p>
+                    <header className="mb-8">
+                        <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Admin Console</h1>
+                        <p className="text-base-content/50 text-sm font-medium">Managing BookWorm Eco-system.</p>
                     </header>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

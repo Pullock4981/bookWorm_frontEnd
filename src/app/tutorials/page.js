@@ -10,10 +10,10 @@ const Tutorials = () => {
         <ProtectedRoute>
             <div className="flex flex-col min-h-screen bg-base-100">
                 <Navbar />
-                <main className="flex-grow max-w-7xl mx-auto px-6 py-12 w-full">
-                    <header className="mb-12">
-                        <h1 className="text-5xl font-black text-base-content mb-2 italic tracking-tighter">Library Guides</h1>
-                        <p className="text-base-content/60 text-lg font-medium">Learn how to make the most of your BookWorm experience.</p>
+                <main className="flex-grow max-w-screen-2xl mx-auto px-8 py-12 w-full">
+                    <header className="mb-8">
+                        <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Library Guides</h1>
+                        <p className="text-base-content/50 text-sm font-medium">Learn how to make the most of your BookWorm experience.</p>
                     </header>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

@@ -115,15 +115,15 @@ const AdminLayout = ({ children }) => {
             {/* Main Content Area */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Header */}
-                <header className="h-16 bg-base-100 border-b border-primary/10 flex items-center justify-between px-6 sticky top-0 z-30">
+                <header className="h-16 bg-base-100 border-b border-primary/10 flex items-center px-6 sticky top-0 z-30">
                     <button
                         onClick={() => setIsSidebarOpen(true)}
-                        className="lg:hidden btn btn-ghost btn-sm btn-circle"
+                        className="lg:hidden btn btn-ghost btn-sm btn-circle mr-3"
                     >
                         <Menu size={20} />
                     </button>
 
-                    <div className="flex-1 lg:flex-none">
+                    <div className="flex-1 flex items-center justify-center lg:justify-start">
                         <h1 className="text-lg font-black text-base-content uppercase tracking-tight">
                             {adminLinks.find(l => l.href === pathname)?.name || 'Admin Panel'}
                         </h1>
