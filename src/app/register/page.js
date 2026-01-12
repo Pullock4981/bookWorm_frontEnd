@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { User, Mail, Lock, UserPlus, Image as ImageIcon, BookOpen } from "lucide-react";
@@ -14,7 +15,15 @@ const RegisterPage = () => {
     });
     const [photo, setPhoto] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
-    const { register } = useAuth();
+    const { register, user, loading: authLoading } = useAuth();
+    const router = useRouter();
+
+    // Redirect if already logged in
+    useEffect(() => {
+        if (!authLoading && user) {
+            router.push('/library');
+        }
+    }, [user, authLoading, router]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
