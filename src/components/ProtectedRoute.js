@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
         if (!loading && !user) {
             router.push('/login');
         }
-        if (!loading && user && adminOnly && user.role !== 'Admin') {
+        if (!loading && user && adminOnly && user.role?.toLowerCase() !== 'admin') {
             router.push('/dashboard');
         }
     }, [user, loading, router, adminOnly]);
@@ -26,7 +26,7 @@ const ProtectedRoute = ({ children, adminOnly = false }) => {
     }
 
     if (!user) return null;
-    if (adminOnly && user.role !== 'Admin') return null;
+    if (adminOnly && user.role?.toLowerCase() !== 'admin') return null;
 
     return children;
 };

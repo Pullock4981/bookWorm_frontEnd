@@ -11,7 +11,7 @@ export default function Home() {
     useEffect(() => {
         if (!loading) {
             if (user) {
-                if (user.role === 'Admin') {
+                if (user.role?.toLowerCase() === 'admin') {
                     router.push('/admin/dashboard');
                 } else {
                     router.push('/library');

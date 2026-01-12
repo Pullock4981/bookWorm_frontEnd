@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
                 timer: 2000,
                 showConfirmButton: false
             });
-            router.push(res.data.data.role === 'Admin' ? '/admin/dashboard' : '/library');
+            router.push(res.data.data.role?.toLowerCase() === 'admin' ? '/admin/dashboard' : '/library');
         } catch (err) {
             Swal.fire('Registration Failed', err, 'error');
             throw err;
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
                 timer: 1500,
                 showConfirmButton: false
             });
-            router.push(res.data.data.role === 'Admin' ? '/admin/dashboard' : '/library');
+            router.push(res.data.data.role?.toLowerCase() === 'admin' ? '/admin/dashboard' : '/library');
         } catch (err) {
             Swal.fire('Login Error', err, 'error');
             throw err;
@@ -64,10 +64,14 @@ export const AuthProvider = ({ children }) => {
 
     const logout = async () => {
         try {
+            await api.get('/auth/logout');
             setUser(null);
             router.push('/login');
         } catch (err) {
             console.error('Logout error:', err);
+            // Fallback: clear local state even if API fails
+            setUser(null);
+            router.push('/login');
         }
     };
 

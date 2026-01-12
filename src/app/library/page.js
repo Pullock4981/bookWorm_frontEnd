@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProtectedRoute from "@/components/ProtectedRoute";
@@ -11,11 +13,20 @@ import Link from "next/link";
 import Swal from "sweetalert2";
 
 const MyLibrary = () => {
+    const { user } = useAuth();
+    const router = useRouter();
     const [libraryItems, setLibraryItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeShelf, setActiveShelf] = useState("Currently Reading");
 
     const shelves = ["Currently Reading", "Want to Read", "Read"];
+
+    // Redirect admin to dashboard
+    useEffect(() => {
+        if (user && user.role?.toLowerCase() === 'admin') {
+            router.push('/admin/dashboard');
+        }
+    }, [user, router]);
 
     useEffect(() => {
         fetchLibrary();
