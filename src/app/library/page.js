@@ -78,8 +78,15 @@ const MyLibrary = () => {
         if (result.isConfirmed) {
             try {
                 await libraryService.removeFromLibrary(id);
-                setLibraryItems(libraryItems.filter(item => item._id !== id));
-                Swal.fire('Removed!', 'Book has been removed.', 'success');
+                setLibraryItems(libraryItems.filter(item => item.book._id !== id));
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Book removed from library',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
             } catch (err) {
                 Swal.fire('Error', "Failed to remove book", "error");
             }
@@ -118,72 +125,89 @@ const MyLibrary = () => {
                             <p className="font-bold text-primary animate-pulse uppercase tracking-widest text-xs">Organizing your shelves...</p>
                         </div>
                     ) : filteredItems.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
                             <AnimatePresence mode="popLayout">
                                 {filteredItems.map(item => (
                                     <motion.div
                                         key={item._id}
                                         layout
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95 }}
-                                        className="card bg-base-200 shadow-xl hover:shadow-2xl transition-all border border-primary/5 group"
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        exit={{ opacity: 0, scale: 0.9 }}
+                                        className="group relative bg-base-200/40 backdrop-blur-sm rounded-[2.5rem] border border-base-content/5 overflow-hidden shadow-sm hover:shadow-2xl hover:border-primary/20 transition-all duration-500"
                                     >
-                                        <div className="flex h-48">
-                                            <div className="w-1/3 shrink-0 relative">
+                                        <div className="flex h-56">
+                                            {/* Book Cover */}
+                                            <Link href={`/books/${item.book?._id}`} className="w-1/3 shrink-0 relative overflow-hidden group-hover:shadow-2xl transition-all duration-500">
                                                 <img
                                                     src={item.book?.coverImage || "https://images.unsplash.com/photo-1543004471-2401c3eaa9c8?w=300"}
                                                     alt={item.book?.title}
-                                                    className="w-full h-full object-cover"
+                                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                                                 />
-                                                <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                            </div>
-                                            <div className="flex-grow p-4 flex flex-col justify-between">
-                                                <div>
+                                                <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                    <span className="bg-white/90 text-primary text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">VIEW DETAILS</span>
+                                                </div>
+                                            </Link>
+
+                                            {/* Content */}
+                                            <div className="flex-grow p-6 flex flex-col justify-between">
+                                                <div className="space-y-1">
                                                     <div className="flex justify-between items-start">
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary/80">{item.book?.genre?.name}</span>
-                                                        <button onClick={() => handleRemove(item._id)} className="text-error/30 hover:text-error transition-colors">
-                                                            <Trash2 size={16} />
+                                                        <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-black text-[9px] uppercase tracking-wider">{item.book?.genre?.name || 'BOOK'}</span>
+                                                        <button
+                                                            onClick={(e) => { e.preventDefault(); handleRemove(item.book._id); }}
+                                                            className="btn btn-ghost btn-xs btn-circle text-error/30 hover:text-error hover:bg-error/10 transition-all"
+                                                            title="Remove from library"
+                                                        >
+                                                            <Trash2 size={14} />
                                                         </button>
                                                     </div>
-                                                    <h3 className="font-black text-base-content leading-tight mt-1 line-clamp-2">{item.book?.title}</h3>
-                                                    <p className="text-xs opacity-50 font-bold">by {item.book?.author}</p>
+                                                    <Link href={`/books/${item.book?._id}`}>
+                                                        <h3 className="font-black text-base-content leading-tight hover:text-primary transition-colors line-clamp-2 mt-1">{item.book?.title}</h3>
+                                                    </Link>
+                                                    <p className="text-[11px] font-bold text-base-content/40 uppercase tracking-tight">by {item.book?.author}</p>
                                                 </div>
 
-                                                {item.shelf === "Currently Reading" && (
-                                                    <div className="mt-2">
-                                                        <div className="flex justify-between text-[10px] font-black mb-1">
-                                                            <span>PROGRESS</span>
-                                                            <span>{Math.round((item.pagesRead / item.book?.totalPages) * 100) || 0}%</span>
+                                                <div className="mt-4">
+                                                    {item.shelf === "Currently Reading" ? (
+                                                        <div className="space-y-3">
+                                                            <div className="flex justify-between items-end">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest">Progress</span>
+                                                                    <span className="text-sm font-black">{Math.round((item.pagesRead / item.book?.totalPages) * 100) || 0}%</span>
+                                                                </div>
+                                                                <div className="flex items-center gap-1.5 bg-base-100/50 px-2 py-1 rounded-lg border border-base-content/5">
+                                                                    <input
+                                                                        type="number"
+                                                                        className="w-12 bg-transparent text-center font-black text-xs focus:outline-none"
+                                                                        defaultValue={item.pagesRead}
+                                                                        onBlur={(e) => handleUpdateProgress(item.book._id, parseInt(e.target.value), item.book?.totalPages)}
+                                                                    />
+                                                                    <span className="text-[10px] font-bold opacity-30">/ {item.book?.totalPages}</span>
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-full bg-base-content/5 h-2 rounded-full overflow-hidden">
+                                                                <motion.div
+                                                                    className="h-full bg-gradient-to-r from-primary to-accent"
+                                                                    initial={{ width: 0 }}
+                                                                    animate={{ width: `${(item.pagesRead / item.book?.totalPages) * 100 || 0}%` }}
+                                                                    transition={{ duration: 1, ease: "easeOut" }}
+                                                                ></motion.div>
+                                                            </div>
                                                         </div>
-                                                        <progress
-                                                            className="progress progress-primary w-full h-2 shadow-inner"
-                                                            value={item.pagesRead || 0}
-                                                            max={item.book?.totalPages || 1}
-                                                        ></progress>
-                                                        <div className="mt-2 flex items-center gap-1">
-                                                            <input
-                                                                type="number"
-                                                                className="input input-bordered input-xs w-16 font-bold"
-                                                                defaultValue={item.pagesRead}
-                                                                onBlur={(e) => handleUpdateProgress(item._id, parseInt(e.target.value), item.book?.totalPages)}
-                                                            />
-                                                            <span className="text-[10px] font-bold opacity-30">/ {item.book?.totalPages}</span>
+                                                    ) : item.shelf === "Read" ? (
+                                                        <div className="flex items-center gap-2 text-success bg-success/5 px-3 py-1.5 rounded-xl border border-success/10 w-fit">
+                                                            <CheckCircle2 size={14} />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest">Finished</span>
                                                         </div>
-                                                    </div>
-                                                )}
-
-                                                {item.shelf === "Read" && (
-                                                    <div className="flex items-center gap-1 text-success text-[10px] font-black uppercase mt-2">
-                                                        <CheckCircle2 size={12} /> Finished
-                                                    </div>
-                                                )}
-
-                                                {item.shelf === "Want to Read" && (
-                                                    <div className="flex items-center gap-1 text-primary text-[10px] font-black uppercase mt-2 italic">
-                                                        <Bookmark size={12} /> Wishlist
-                                                    </div>
-                                                )}
+                                                    ) : (
+                                                        <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10 w-fit">
+                                                            <Bookmark size={14} fill="currentColor" />
+                                                            <span className="text-[10px] font-black uppercase tracking-widest">On Wishlist</span>
+                                                        </div>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </motion.div>

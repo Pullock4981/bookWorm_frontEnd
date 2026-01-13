@@ -193,18 +193,18 @@ const UserDashboard = () => {
 
                                                         {item.type === 'review' ? (
                                                             <div>
-                                                                <p className="font-medium text-lg mb-2">
-                                                                    Rated <span className="font-bold text-primary">"{item.book.title}"</span>
+                                                                <div className="font-medium text-lg mb-2 flex flex-wrap items-center">
+                                                                    Rated <span className="font-bold text-primary mx-1">"{item.book.title}"</span>
                                                                     <div className="inline-flex items-center ml-2 text-warning gap-1 bg-warning/5 px-2 py-0.5 rounded-lg">
                                                                         <span className="font-bold text-sm">{item.rating}</span> <Star size={12} fill="currentColor" />
                                                                     </div>
-                                                                </p>
+                                                                </div>
                                                             </div>
                                                         ) : (
                                                             <div>
-                                                                <p className="font-medium text-lg mb-2">
+                                                                <div className="font-medium text-lg mb-2">
                                                                     {item.shelf === 'Read' ? 'Finished reading' : `Added to ${item.shelf} list`}: <span className="font-bold text-primary">"{item.book.title}"</span>
-                                                                </p>
+                                                                </div>
                                                             </div>
                                                         )}
                                                     </div>
