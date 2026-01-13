@@ -1,22 +1,142 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Users } from "lucide-react";
+import { Users, Trash2 } from "lucide-react";
+import userService from "@/services/userService";
+import Swal from "sweetalert2";
 
 const ManageUsers = () => {
+    const [users, setUsers] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const fetchUsers = async () => {
+        try {
+            setLoading(true);
+            const response = await userService.getAllUsers();
+            setUsers(response.data || []);
+        } catch (error) {
+            console.error("Failed to fetch users:", error);
+            Swal.fire("Error", "Failed to load users", "error");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleRoleUpdate = async (user, newRole) => {
+        try {
+            await userService.updateUserRole(user._id, newRole);
+            Swal.fire("Updated", `User role updated to ${newRole}`, "success");
+            fetchUsers();
+        } catch (error) {
+            Swal.fire("Error", "Failed to update role", "error");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        const result = await Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            confirmButtonText: "Yes, delete user!"
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await userService.deleteUser(id);
+                Swal.fire("Deleted!", "User has been removed.", "success");
+                fetchUsers();
+            } catch (error) {
+                Swal.fire("Error", "Failed to delete user", "error");
+            }
+        }
+    };
+
     return (
         <ProtectedRoute adminOnly={true}>
             <AdminLayout>
-                <div className="p-6 md:p-12">
-                    <header className="mb-8">
-                        <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">User Base</h1>
-                        <p className="text-base-content/50 text-sm font-medium">Manage permissions and monitor community growth.</p>
+                <div className="p-6 md:p-12 min-h-screen">
+                    {/* Header Section */}
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
+                        <div>
+                            <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">User Base</h1>
+                            <p className="text-base-content/50 text-sm font-medium">Manage permissions and monitor community growth.</p>
+                        </div>
+                        <div className="bg-base-100 px-6 py-3 rounded-2xl font-bold text-base-content/60 border border-base-content/5 shadow-sm">
+                            Total Users: <span className="text-primary">{users.length}</span>
+                        </div>
                     </header>
 
-                    <div className="bg-base-200 p-20 rounded-[4rem] text-center border border-primary/5 shadow-inner">
-                        <Users size={48} className="mx-auto text-primary/10 mb-6" />
-                        <h2 className="text-lg font-black text-base-content/50 uppercase tracking-widest">Database Syncing...</h2>
+                    <div className="bg-base-100/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-primary/5 shadow-xl relative">
+                        {loading ? (
+                            <div className="flex justify-center items-center h-64">
+                                <span className="loading loading-spinner loading-lg text-primary"></span>
+                            </div>
+                        ) : users.length === 0 ? (
+                            <div className="text-center py-20">
+                                <p className="text-base-content/40 font-bold">No users found.</p>
+                            </div>
+                        ) : (
+                            <div className="overflow-x-auto">
+                                <table className="table table-lg w-full">
+                                    <thead className="bg-primary/5 border-b border-primary/10">
+                                        <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                                            <th className="py-6 px-10">User</th>
+                                            <th>Email</th>
+                                            <th>Role</th>
+                                            <th>Joined</th>
+                                            <th className="text-right px-10">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {users.map((user) => (
+                                            <tr key={user._id} className="border-b border-base-content/5 hover:bg-white/5 transition-colors">
+                                                <td className="py-6 px-10">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="avatar placeholder">
+                                                            <div className="bg-neutral text-neutral-content rounded-full w-10">
+                                                                <span className="text-xs font-bold">{user.name[0]}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="font-bold">{user.name}</div>
+                                                    </div>
+                                                </td>
+                                                <td className="font-medium opacity-70">{user.email}</td>
+                                                <td>
+                                                    <select
+                                                        className={`select select-sm select-bordered w-full max-w-xs font-bold rounded-lg ${user.role === 'Admin' ? 'text-primary border-primary/30 bg-primary/5' : ''}`}
+                                                        value={user.role}
+                                                        onChange={(e) => handleRoleUpdate(user, e.target.value)}
+                                                    >
+                                                        <option value="User">User</option>
+                                                        <option value="Admin">Admin</option>
+                                                    </select>
+                                                </td>
+                                                <td className="text-xs font-bold opacity-50 uppercase tracking-widest">
+                                                    {new Date(user.createdAt).toLocaleDateString()}
+                                                </td>
+                                                <td className="text-right px-10">
+                                                    <button
+                                                        onClick={() => handleDelete(user._id)}
+                                                        className="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+                                                        disabled={user.role === 'Admin'} // Basic protection against deleting own admin account if needed, better handled by comparing IDs
+                                                    >
+                                                        <Trash2 size={18} />
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             </AdminLayout>

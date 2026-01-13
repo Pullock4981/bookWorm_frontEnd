@@ -54,7 +54,7 @@ const AdminDashboard = () => {
                         <>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                                 {cards.map((stat, idx) => (
-                                    <div key={idx} className={`bg-base-200 p-8 rounded-[2rem] border-2 border-${stat.color}/5 shadow-xl`}>
+                                    <div key={idx} className={`bg-base-100/50 backdrop-blur-xl p-8 rounded-[2rem] border border-${stat.color}/10 shadow-lg hover:shadow-xl transition-shadow`}>
                                         <div className={`p-3 bg-${stat.color}/10 rounded-2xl w-fit mb-4 text-${stat.color}`}>
                                             {stat.icon}
                                         </div>
