@@ -30,7 +30,9 @@ export const AuthProvider = ({ children }) => {
     const register = async (userData) => {
         try {
             const res = await api.post('/auth/register', userData);
-            setUser(res.data.data);
+            const user = res.data.data;
+            if (user.token) localStorage.setItem('token', user.token);
+            setUser(user);
             Swal.fire({
                 icon: 'success',
                 title: 'Welcome to BookWorm!',
@@ -48,7 +50,9 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         try {
             const res = await api.post('/auth/login', { email, password });
-            setUser(res.data.data);
+            const user = res.data.data;
+            if (user.token) localStorage.setItem('token', user.token);
+            setUser(user);
             Swal.fire({
                 icon: 'success',
                 title: 'Login Successful',
@@ -65,6 +69,7 @@ export const AuthProvider = ({ children }) => {
     const logout = async () => {
         try {
             await api.get('/auth/logout');
+            localStorage.removeItem('token');
             setUser(null);
             router.push('/login');
         } catch (err) {

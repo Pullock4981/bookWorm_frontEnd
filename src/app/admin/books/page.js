@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { BookText, Plus, Search, Filter, Pencil, Trash2, X, Upload, Loader2, FileText, ExternalLink } from "lucide-react";
+import { BookText, Plus, Search, Filter, Pencil, Trash2, X, Upload, Loader2, FileText, ExternalLink, ChevronLeft, ChevronRight } from "lucide-react";
 import bookService from "@/services/bookService";
 import genreService from "@/services/genreService";
 import Swal from "sweetalert2";
@@ -14,6 +14,8 @@ const ManageBooks = () => {
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [selectedGenre, setSelectedGenre] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const booksPerPage = 10;
 
     // Modal & Form State
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,7 +42,7 @@ const ManageBooks = () => {
         try {
             setLoading(true);
             const [booksData, genresData] = await Promise.all([
-                bookService.getAllBooks().catch(err => { console.error("Books fetch failed:", err?.message || err); return { data: { books: [] } }; }),
+                bookService.getAllBooks({ limit: 1000 }).catch(err => { console.error("Books fetch failed:", err?.message || err); return { data: { books: [] } }; }),
                 genreService.getAllGenres().catch(err => { console.error("Genres fetch failed:", err?.message || err); return { data: [] }; })
             ]);
 
@@ -174,6 +176,22 @@ const ManageBooks = () => {
         return matchesSearch && matchesGenre;
     });
 
+    // Pagination calculations
+    const totalPages = Math.ceil(filteredBooks.length / booksPerPage);
+    const indexOfLastBook = currentPage * booksPerPage;
+    const indexOfFirstBook = indexOfLastBook - booksPerPage;
+    const currentBooks = filteredBooks.slice(indexOfFirstBook, indexOfLastBook);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    // Reset to page 1 when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm, selectedGenre]);
+
     return (
         <ProtectedRoute adminOnly={true}>
             <AdminLayout>
@@ -183,6 +201,11 @@ const ManageBooks = () => {
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Inventory</h1>
                             <p className="text-base-content/50 text-sm font-medium">Manage and organize the entire book catalog.</p>
+                            {!loading && filteredBooks.length > 0 && (
+                                <p className="text-xs font-bold text-base-content/40 mt-1">
+                                    Showing {indexOfFirstBook + 1}-{Math.min(indexOfLastBook, filteredBooks.length)} of {filteredBooks.length} books
+                                </p>
+                            )}
                         </div>
                         <button
                             onClick={() => openModal()}
@@ -243,7 +266,7 @@ const ManageBooks = () => {
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {filteredBooks.map((book) => (
+                                            {currentBooks.map((book) => (
                                                 <tr key={book._id} className="border-b border-base-content/5 hover:bg-white/5 transition-colors group">
                                                     <td className="py-6 px-10">
                                                         <div className="flex items-center gap-6">
@@ -277,7 +300,7 @@ const ManageBooks = () => {
 
                                 {/* Card View for Mobile */}
                                 <div className="md:hidden grid grid-cols-1 gap-4 p-4">
-                                    {filteredBooks.map((book) => (
+                                    {currentBooks.map((book) => (
                                         <div key={book._id} className="bg-base-100 rounded-3xl p-5 border border-primary/10 shadow-xl shadow-primary/5 flex gap-5 hover:border-primary/30 transition-all duration-300">
                                             <div className="w-24 h-36 flex-shrink-0 bg-base-200 rounded-2xl overflow-hidden shadow-md">
                                                 <img src={book.coverImage} alt={book.title} className="w-full h-full object-cover" />
@@ -314,6 +337,57 @@ const ManageBooks = () => {
                                         </div>
                                     ))}
                                 </div>
+
+                                {/* Pagination Controls */}
+                                {totalPages > 1 && (
+                                    <div className="flex justify-center items-center gap-2 mt-8 mb-4">
+                                        <button
+                                            onClick={() => handlePageChange(currentPage - 1)}
+                                            disabled={currentPage === 1}
+                                            className="btn btn-circle btn-ghost hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                                        >
+                                            <ChevronLeft size={20} />
+                                        </button>
+
+                                        <div className="flex gap-2">
+                                            {[...Array(totalPages)].map((_, index) => {
+                                                const pageNumber = index + 1;
+                                                if (
+                                                    pageNumber === 1 ||
+                                                    pageNumber === totalPages ||
+                                                    (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                                ) {
+                                                    return (
+                                                        <button
+                                                            key={pageNumber}
+                                                            onClick={() => handlePageChange(pageNumber)}
+                                                            className={`btn btn-circle ${currentPage === pageNumber
+                                                                ? 'btn-primary'
+                                                                : 'btn-ghost hover:bg-primary/10'
+                                                                }`}
+                                                        >
+                                                            {pageNumber}
+                                                        </button>
+                                                    );
+                                                } else if (
+                                                    pageNumber === currentPage - 2 ||
+                                                    pageNumber === currentPage + 2
+                                                ) {
+                                                    return <span key={pageNumber} className="flex items-center px-2 text-base-content/30">...</span>;
+                                                }
+                                                return null;
+                                            })}
+                                        </div>
+
+                                        <button
+                                            onClick={() => handlePageChange(currentPage + 1)}
+                                            disabled={currentPage === totalPages}
+                                            className="btn btn-circle btn-ghost hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                                        >
+                                            <ChevronRight size={20} />
+                                        </button>
+                                    </div>
+                                )}
                             </>
                         )}
                     </div>

@@ -88,8 +88,10 @@ const ModerateReviews = () => {
 
                     <div className="bg-base-100/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-primary/5 shadow-2xl relative p-8">
                         {loading ? (
-                            <div className="flex justify-center items-center py-20">
-                                <Loader2 className="animate-spin text-primary" size={40} />
+                            <div className="space-y-6">
+                                {[1, 2, 3].map(i => (
+                                    <div key={i} className="h-40 bg-base-200 animate-pulse rounded-[2rem]"></div>
+                                ))}
                             </div>
                         ) : reviews.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-20">

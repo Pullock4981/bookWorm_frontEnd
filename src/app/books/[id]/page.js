@@ -25,6 +25,7 @@ const BookDetails = () => {
     const [reviewText, setReviewText] = useState("");
     const [submittingReview, setSubmittingReview] = useState(false);
     const [addingToShelf, setAddingToShelf] = useState(false);
+    const [currentShelf, setCurrentShelf] = useState(null);
     const [isLiked, setIsLiked] = useState(false);
 
     useEffect(() => {
@@ -32,6 +33,7 @@ const BookDetails = () => {
             fetchBookDetails();
             fetchBookReviews();
             checkFavoriteStatus();
+            checkLibraryStatus();
         }
     }, [id]);
 
@@ -57,6 +59,17 @@ const BookDetails = () => {
         }
     };
 
+    const checkLibraryStatus = async () => {
+        try {
+            const res = await libraryService.checkLibraryStatus(id);
+            if (res.status === 'success' && res.data.isInLibrary) {
+                setCurrentShelf(res.data.shelf);
+            }
+        } catch (error) {
+            console.error("Error checking library status:", error);
+        }
+    };
+
     const fetchBookReviews = async () => {
         try {
             const response = await reviewService.getBookReviews(id);
@@ -70,9 +83,10 @@ const BookDetails = () => {
         try {
             setAddingToShelf(true);
             await libraryService.addToLibrary(id, shelf);
+            setCurrentShelf(shelf);
             Swal.fire({
-                title: "Added to Library!",
-                text: `"${book.title}" added to your ${shelf} shelf.`,
+                title: currentShelf ? "Shelf Updated!" : "Added to Library!",
+                text: `"${book.title}" is now in your ${shelf} shelf.`,
                 icon: "success",
                 timer: 2000,
                 showConfirmButton: false,
@@ -246,14 +260,38 @@ const BookDetails = () => {
                                     {/* Action Buttons */}
                                     <div className="flex flex-wrap gap-4 pt-6">
                                         <div className="dropdown dropdown-bottom dropdown-end md:dropdown-start">
-                                            <button tabIndex={0} className="btn btn-primary rounded-2xl font-black h-14 px-8 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
-                                                <BookMarked size={20} /> {addingToShelf ? "ADDING..." : "ADD TO SHELF"}
+                                            <button tabIndex={0} className={`btn ${currentShelf ? 'btn-accent' : 'btn-primary'} rounded-2xl font-black h-14 px-8 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all`}>
+                                                <BookMarked size={20} />
+                                                {addingToShelf ? "UPDATING..." : (currentShelf ? `SHELF: ${currentShelf.toUpperCase()}` : "ADD TO SHELF")}
                                             </button>
                                             <ul tabIndex={0} className="dropdown-content z-[50] menu p-3 shadow-2xl bg-base-100 rounded-[2rem] w-64 mt-4 border border-base-content/10 border-t-primary/20">
-                                                <li className="menu-title px-4 py-2 text-[10px] font-black uppercase tracking-widest opacity-40">Choose a shelf</li>
-                                                <li><button className="font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1" onClick={() => handleAddToShelf('Want to Read')}>Want to Read</button></li>
-                                                <li><button className="font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1" onClick={() => handleAddToShelf('Currently Reading')}>Currently Reading</button></li>
-                                                <li><button className="font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl" onClick={() => handleAddToShelf('Read')}>Finished Read</button></li>
+                                                <li className="menu-title px-4 py-2 text-[10px] font-black uppercase tracking-widest opacity-40">
+                                                    {currentShelf ? "Move to different shelf" : "Choose a shelf"}
+                                                </li>
+                                                <li>
+                                                    <button
+                                                        className={`font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1 ${currentShelf === 'Want to Read' ? 'bg-primary/10 text-primary' : ''}`}
+                                                        onClick={() => handleAddToShelf('Want to Read')}
+                                                    >
+                                                        Want to Read
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button
+                                                        className={`font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1 ${currentShelf === 'Currently Reading' ? 'bg-primary/10 text-primary' : ''}`}
+                                                        onClick={() => handleAddToShelf('Currently Reading')}
+                                                    >
+                                                        Currently Reading
+                                                    </button>
+                                                </li>
+                                                <li>
+                                                    <button
+                                                        className={`font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl ${currentShelf === 'Read' ? 'bg-primary/10 text-primary' : ''}`}
+                                                        onClick={() => handleAddToShelf('Read')}
+                                                    >
+                                                        Finished Read
+                                                    </button>
+                                                </li>
                                             </ul>
                                         </div>
 

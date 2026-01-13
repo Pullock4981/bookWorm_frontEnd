@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { Video, Plus, Trash2, ExternalLink, Youtube, Loader2, Pen } from "lucide-react";
+import { Video, Plus, Trash2, ExternalLink, Youtube, Loader2, Pen, ChevronLeft, ChevronRight } from "lucide-react";
 import tutorialService from "@/services/tutorialService";
 import Swal from "sweetalert2";
 
@@ -18,6 +18,8 @@ const ManageTutorials = () => {
         description: ""
     });
     const [submitting, setSubmitting] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
+    const tutorialsPerPage = 8;
 
     useEffect(() => {
         fetchTutorials();
@@ -123,6 +125,17 @@ const ManageTutorials = () => {
         }
     };
 
+    // Pagination calculations
+    const totalPages = Math.ceil(tutorials.length / tutorialsPerPage);
+    const indexOfLastTutorial = currentPage * tutorialsPerPage;
+    const indexOfFirstTutorial = indexOfLastTutorial - tutorialsPerPage;
+    const currentTutorials = tutorials.slice(indexOfFirstTutorial, indexOfLastTutorial);
+
+    const handlePageChange = (pageNumber) => {
+        setCurrentPage(pageNumber);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
     return (
         <ProtectedRoute adminOnly={true}>
             <AdminLayout>
@@ -131,6 +144,11 @@ const ManageTutorials = () => {
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Video Library</h1>
                             <p className="text-base-content/50 text-sm font-medium">Manage tutorial content and embed YouTube guides.</p>
+                            {!loading && tutorials.length > 0 && (
+                                <p className="text-xs font-bold text-base-content/40 mt-1">
+                                    Showing {indexOfFirstTutorial + 1}-{Math.min(indexOfLastTutorial, tutorials.length)} of {tutorials.length} videos
+                                </p>
+                            )}
                         </div>
                         <button
                             onClick={() => {
@@ -157,77 +175,130 @@ const ManageTutorials = () => {
                             <p className="text-sm opacity-40">Start by adding your first video guide.</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
-                            {tutorials.map((tutorial) => {
-                                const videoId = getYoutubeId(tutorial.videoUrl);
-                                return (
-                                    <div key={tutorial._id} className="group flex flex-col gap-3 h-full">
-                                        {/* Video Preview */}
-                                        <div className="relative aspect-video rounded-3xl overflow-hidden bg-base-200 shadow-sm transition-transform group-hover:scale-[1.02] duration-300 flex-shrink-0">
-                                            {videoId ? (
-                                                <a
-                                                    href={`https://www.youtube.com/watch?v=${videoId}`}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="block w-full h-full relative group/play"
-                                                >
-                                                    <img
-                                                        src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
-                                                        alt={tutorial.title}
-                                                        className="w-full h-full object-cover"
-                                                    />
-                                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/play:bg-black/40 transition-colors">
-                                                        <div className="bg-red-600/90 text-white rounded-2xl px-4 py-2 flex items-center gap-2 transform group-hover/play:scale-110 transition-transform shadow-lg">
-                                                            <Youtube size={24} fill="currentColor" />
-                                                            <span className="font-bold text-sm">Play</span>
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-10">
+                                {currentTutorials.map((tutorial) => {
+                                    const videoId = getYoutubeId(tutorial.videoUrl);
+                                    return (
+                                        <div key={tutorial._id} className="group flex flex-col gap-3 h-full">
+                                            {/* Video Preview */}
+                                            <div className="relative aspect-video rounded-3xl overflow-hidden bg-base-200 shadow-sm transition-transform group-hover:scale-[1.02] duration-300 flex-shrink-0">
+                                                {videoId ? (
+                                                    <a
+                                                        href={`https://www.youtube.com/watch?v=${videoId}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="block w-full h-full relative group/play"
+                                                    >
+                                                        <img
+                                                            src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+                                                            alt={tutorial.title}
+                                                            className="w-full h-full object-cover"
+                                                        />
+                                                        <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/play:bg-black/40 transition-colors">
+                                                            <div className="bg-red-600/90 text-white rounded-2xl px-4 py-2 flex items-center gap-2 transform group-hover/play:scale-110 transition-transform shadow-lg">
+                                                                <Youtube size={24} fill="currentColor" />
+                                                                <span className="font-bold text-sm">Play</span>
+                                                            </div>
                                                         </div>
+                                                    </a>
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-base-content/30">
+                                                        <Video size={32} />
                                                     </div>
-                                                </a>
-                                            ) : (
-                                                <div className="flex items-center justify-center h-full text-base-content/30">
-                                                    <Video size={32} />
+                                                )}
+                                            </div>
+
+                                            {/* Minimal Details */}
+                                            <div className="px-1 flex flex-col flex-grow">
+                                                <h3 className="font-bold text-base leading-snug text-base-content/90 mb-1 line-clamp-1">
+                                                    {tutorial.title}
+                                                </h3>
+                                                <p className="text-xs text-base-content/50 line-clamp-2 leading-relaxed mb-4">
+                                                    {tutorial.description || "No description."}
+                                                </p>
+
+                                                <div className="flex gap-2 mt-auto">
+                                                    <a
+                                                        href={tutorial.videoUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="btn btn-xs btn-outline rounded-lg flex-1 font-bold gap-1"
+                                                    >
+                                                        <ExternalLink size={12} /> Watch
+                                                    </a>
+                                                    <button
+                                                        onClick={() => handleEdit(tutorial)}
+                                                        className="btn btn-xs btn-ghost text-primary bg-primary/10 hover:bg-primary/20 rounded-lg px-2"
+                                                        title="Edit"
+                                                    >
+                                                        <Pen size={14} />
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDelete(tutorial._id)}
+                                                        className="btn btn-xs btn-ghost text-error bg-error/10 hover:bg-error/20 rounded-lg px-2"
+                                                        title="Delete"
+                                                    >
+                                                        <Trash2 size={14} />
+                                                    </button>
                                                 </div>
-                                            )}
-                                        </div>
-
-                                        {/* Minimal Details */}
-                                        <div className="px-1 flex flex-col flex-grow">
-                                            <h3 className="font-bold text-base leading-snug text-base-content/90 mb-1 line-clamp-1">
-                                                {tutorial.title}
-                                            </h3>
-                                            <p className="text-xs text-base-content/50 line-clamp-2 leading-relaxed mb-4">
-                                                {tutorial.description || "No description."}
-                                            </p>
-
-                                            <div className="flex gap-2 mt-auto">
-                                                <a
-                                                    href={tutorial.videoUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="btn btn-xs btn-outline rounded-lg flex-1 font-bold gap-1"
-                                                >
-                                                    <ExternalLink size={12} /> Watch
-                                                </a>
-                                                <button
-                                                    onClick={() => handleEdit(tutorial)}
-                                                    className="btn btn-xs btn-ghost text-primary bg-primary/10 hover:bg-primary/20 rounded-lg px-2"
-                                                    title="Edit"
-                                                >
-                                                    <Pen size={14} />
-                                                </button>
-                                                <button
-                                                    onClick={() => handleDelete(tutorial._id)}
-                                                    className="btn btn-xs btn-ghost text-error bg-error/10 hover:bg-error/20 rounded-lg px-2"
-                                                    title="Delete"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
                                             </div>
                                         </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Pagination Controls */}
+                            {totalPages > 1 && (
+                                <div className="flex justify-center items-center gap-2 mt-12">
+                                    <button
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        className="btn btn-circle btn-ghost hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronLeft size={20} />
+                                    </button>
+
+                                    <div className="flex gap-2">
+                                        {[...Array(totalPages)].map((_, index) => {
+                                            const pageNumber = index + 1;
+                                            if (
+                                                pageNumber === 1 ||
+                                                pageNumber === totalPages ||
+                                                (pageNumber >= currentPage - 1 && pageNumber <= currentPage + 1)
+                                            ) {
+                                                return (
+                                                    <button
+                                                        key={pageNumber}
+                                                        onClick={() => handlePageChange(pageNumber)}
+                                                        className={`btn btn-circle ${currentPage === pageNumber
+                                                            ? 'btn-primary'
+                                                            : 'btn-ghost hover:bg-primary/10'
+                                                            }`}
+                                                    >
+                                                        {pageNumber}
+                                                    </button>
+                                                );
+                                            } else if (
+                                                pageNumber === currentPage - 2 ||
+                                                pageNumber === currentPage + 2
+                                            ) {
+                                                return <span key={pageNumber} className="flex items-center px-2 text-base-content/30">...</span>;
+                                            }
+                                            return null;
+                                        })}
                                     </div>
-                                );
-                            })}
-                        </div>
+
+                                    <button
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        className="btn btn-circle btn-ghost hover:bg-primary/10 disabled:opacity-30 disabled:cursor-not-allowed"
+                                    >
+                                        <ChevronRight size={20} />
+                                    </button>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
 

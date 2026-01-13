@@ -13,6 +13,7 @@ import favoriteService from "@/services/favoriteService";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import Image from "next/image";
+import DashboardSkeleton from "@/components/DashboardSkeleton";
 
 const UserDashboard = () => {
     const [stats, setStats] = useState(null);
@@ -33,28 +34,21 @@ const UserDashboard = () => {
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [statsRes, feedRes, recRes, suggestionsRes, followingRes] = await Promise.all([
+            const [statsRes, feedRes, recRes, suggestionsRes, followingRes, favRes] = await Promise.all([
                 statsService.getUserStats(),
                 socialService.getFeed(),
                 recommendationService.getRecommendations(),
                 socialService.getSuggestedUsers(),
-                socialService.getFollowing()
+                socialService.getFollowing(),
+                favoriteService.getMyFavorites().catch(() => ({ data: { data: [] } }))
             ]);
 
             setStats(statsRes.data.data);
             setFeed(feedRes.data || []);
             setRecommendations(recRes.data || []);
             setSuggestedUsers(suggestionsRes.data || []);
-            setRecommendations(recRes.data || []);
-            setSuggestedUsers(suggestionsRes.data || []);
             setFollowingList(followingRes.data || []);
-
-            try {
-                const favRes = await favoriteService.getMyFavorites();
-                setFavorites(favRes.data.data || []);
-            } catch (err) {
-                console.error("Failed to fetch favorites", err);
-            }
+            setFavorites(favRes.data.data || []);
 
             if (statsRes.data.data.goal) {
                 setGoalTarget(statsRes.data.data.goal.target);
@@ -156,9 +150,7 @@ const UserDashboard = () => {
                     </header>
 
                     {loading ? (
-                        <div className="flex justify-center py-20">
-                            <span className="loading loading-spinner text-primary loading-lg"></span>
-                        </div>
+                        <DashboardSkeleton />
                     ) : (
                         <>
                             {/* Goals Section */}
@@ -250,20 +242,20 @@ const UserDashboard = () => {
                                 </div>
 
                                 {recommendations.length > 0 ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                                        {recommendations.slice(0, 6).map((book) => (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
+                                        {recommendations.map((book) => (
                                             <Link
                                                 href={`/books/${book._id}`}
                                                 key={book._id}
-                                                className="group block"
+                                                className="group/card block"
                                             >
                                                 {/* Professional Minimal Card */}
-                                                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-base-200 shadow-md group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-300">
+                                                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-base-200 shadow-md group-hover/card:shadow-2xl group-hover/card:-translate-y-2 transition-all duration-300">
                                                     {book.coverImage && (
                                                         <img
                                                             src={book.coverImage.startsWith('http') ? book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${book.coverImage}`}
                                                             alt={book.title}
-                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
                                                                 e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?q=80&w=600&auto=format&fit=crop";
@@ -271,36 +263,34 @@ const UserDashboard = () => {
                                                         />
                                                     )}
 
-                                                    {/* Minimal Overlay info on hover */}
-                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <div className="bg-white/90 p-2 rounded-full transform scale-50 group-hover:scale-100 transition-transform duration-300 shadow-xl">
-                                                            <ChevronRight size={16} className="text-black" />
+                                                    <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
+                                                        <div className="flex items-center gap-1 text-white font-black text-[10px] uppercase tracking-wider">
+                                                            <Star size={10} className="text-warning" fill="currentColor" />
+                                                            {book.averageRating?.toFixed(1) || '0.0'}
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-2 px-1">
-                                                    <h3 className="font-bold text-xs text-base-content leading-tight mb-1 truncate">{book.title}</h3>
+                                                <div className="mt-3 px-1">
+                                                    <h3 className="font-bold text-[11px] md:text-xs text-base-content leading-tight mb-1 truncate">{book.title}</h3>
                                                     <div className="flex items-center justify-between">
-                                                        <div className="flex items-center gap-0.5 text-warning">
-                                                            <Star size={8} fill="currentColor" />
-                                                            <span className="text-[9px] font-bold">{book.averageRating?.toFixed(1) || '0.0'}</span>
-                                                        </div>
+                                                        <p className="text-[10px] text-base-content/40 font-medium truncate max-w-[70%]">
+                                                            {book.author}
+                                                        </p>
 
                                                         {/* Recommendation Reason Tooltip */}
                                                         {book.recommendationReason && (
                                                             <div className="relative group/reason z-20" onClick={(e) => e.preventDefault()}>
-                                                                {/* Prevent link nav on tooltip click if needed, though simpler is just hover */}
                                                                 <div className="cursor-help opacity-40 hover:opacity-100 transition-opacity">
-                                                                    <div className="badge badge-xs badge-ghost gap-1 border-base-content/20 bg-base-100">
+                                                                    <div className="badge badge-xs badge-ghost border-primary/20 bg-primary/5 hover:bg-primary/10 px-1">
                                                                         <span className="text-[8px] font-black uppercase tracking-wider text-primary">Why?</span>
                                                                     </div>
                                                                 </div>
 
-                                                                <div className="absolute bottom-full right-0 mb-2 w-48 bg-base-300/90 backdrop-blur-md text-base-content p-3 rounded-xl shadow-xl border border-base-content/5 text-[10px] leading-relaxed font-medium opacity-0 invisible group-hover/reason:opacity-100 group-hover/reason:visible transition-all duration-200 pointer-events-none transform translate-y-2 group-hover/reason:translate-y-0">
-                                                                    <div className="absolute -bottom-1 right-3 w-2 h-2 bg-base-300/90 rotate-45"></div>
-                                                                    <span className="block font-bold text-primary mb-0.5 text-[9px] uppercase tracking-wider">
-                                                                        {book.recommendationReason.includes('Match') ? 'Because you read...' : 'Curated Choice'}
+                                                                <div className="absolute bottom-full right-0 mb-3 w-56 bg-base-300/95 backdrop-blur-xl text-base-content p-4 rounded-2xl shadow-2xl border border-base-content/10 text-[10px] leading-relaxed font-medium opacity-0 invisible group-hover/reason:opacity-100 group-hover/reason:visible transition-all duration-300 pointer-events-none transform translate-y-3 group-hover/reason:translate-y-0 z-50">
+                                                                    <div className="absolute -bottom-1.5 right-4 w-3 h-3 bg-base-300/95 rotate-45 border-r border-b border-base-content/10"></div>
+                                                                    <span className="block font-black text-primary mb-1 text-[9px] uppercase tracking-widest">
+                                                                        {book.recommendationReason.includes('preference') ? 'Personalized Match' : 'Curated Choice'}
                                                                     </span>
                                                                     {book.recommendationReason}
                                                                 </div>

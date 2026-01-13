@@ -16,6 +16,10 @@ const libraryService = {
     removeFromLibrary: async (id) => {
         const response = await api.delete(`/library/${id}`);
         return response.data;
+    },
+    checkLibraryStatus: async (bookId) => {
+        const response = await api.get(`/library/check/${bookId}`);
+        return response.data;
     }
 };
 

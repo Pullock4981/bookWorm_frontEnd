@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Users, BookText, MessageSquare, TrendingUp, AlertCircle, Loader2, PieChart as PieChartIcon, BarChart as BarChartIcon } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import statsService from "@/services/statsService";
+import AdminSkeleton from "@/components/AdminSkeleton";
 
 const AdminDashboard = () => {
     const [stats, setStats] = useState({
@@ -53,9 +54,7 @@ const AdminDashboard = () => {
                     </header>
 
                     {loading ? (
-                        <div className="flex justify-center py-20">
-                            <Loader2 className="animate-spin text-primary" size={40} />
-                        </div>
+                        <AdminSkeleton />
                     ) : (
                         <>
                             {stats.pendingReviews > 0 && (

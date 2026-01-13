@@ -78,7 +78,7 @@ const MyLibrary = () => {
         if (result.isConfirmed) {
             try {
                 await libraryService.removeFromLibrary(id);
-                setLibraryItems(libraryItems.filter(item => item.book._id !== id));
+                setLibraryItems(libraryItems.filter(item => item.book?._id !== id));
                 Swal.fire({
                     toast: true,
                     position: 'top-end',
@@ -177,17 +177,22 @@ const MyLibrary = () => {
                                                     <div className="flex justify-between items-start">
                                                         <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold text-[9px] uppercase tracking-wider">{item.book?.genre?.name || 'BOOK'}</span>
                                                         <button
-                                                            onClick={(e) => { e.preventDefault(); handleRemove(item.book._id); }}
-                                                            className="text-base-content/20 hover:text-error transition-colors"
+                                                            onClick={(e) => { e.preventDefault(); if (item.book?._id) handleRemove(item.book._id); }}
+                                                            className="text-base-content/20 hover:text-error transition-colors disabled:opacity-30"
                                                             title="Remove from library"
+                                                            disabled={!item.book?._id}
                                                         >
                                                             <Trash2 size={16} />
                                                         </button>
                                                     </div>
-                                                    <Link href={`/books/${item.book?._id}`}>
-                                                        <h3 className="font-bold text-base-content leading-tight hover:text-primary transition-colors line-clamp-1 mt-1 text-lg" title={item.book?.title}>{item.book?.title}</h3>
-                                                    </Link>
-                                                    <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide truncate">by {item.book?.author}</p>
+                                                    {item.book?._id ? (
+                                                        <Link href={`/books/${item.book._id}`}>
+                                                            <h3 className="font-bold text-base-content leading-tight hover:text-primary transition-colors line-clamp-1 mt-1 text-lg" title={item.book?.title}>{item.book?.title}</h3>
+                                                        </Link>
+                                                    ) : (
+                                                        <h3 className="font-bold text-base-content leading-tight line-clamp-1 mt-1 text-lg">{item.book?.title || 'Unknown Book'}</h3>
+                                                    )}
+                                                    <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide truncate">by {item.book?.author || 'Unknown'}</p>
                                                 </div>
 
                                                 <div className="mt-4">
@@ -202,7 +207,7 @@ const MyLibrary = () => {
                                                                         type="number"
                                                                         className="w-10 bg-transparent text-right font-bold text-sm focus:outline-none text-primary"
                                                                         defaultValue={item.pagesRead}
-                                                                        onBlur={(e) => handleUpdateProgress(item.book._id, parseInt(e.target.value), item.book?.totalPages)}
+                                                                        onBlur={(e) => item.book?._id && handleUpdateProgress(item.book._id, parseInt(e.target.value), item.book?.totalPages)}
                                                                     />
                                                                     <span className="text-[10px] font-bold opacity-40">/ {item.book?.totalPages}</span>
                                                                 </div>
