@@ -7,7 +7,7 @@ const DashboardSkeleton = () => {
             <div className="h-48 bg-base-200 rounded-[2.5rem]"></div>
 
             {/* Stats Grid Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
                 {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="h-32 bg-base-200 rounded-[2rem]"></div>
                 ))}

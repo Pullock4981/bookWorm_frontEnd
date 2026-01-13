@@ -208,7 +208,7 @@ const UserDashboard = () => {
                                 </div>
                             </section>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-12">
                                 {[
                                     { label: "Books Read", value: stats?.totalBooksRead || 0, icon: <BookCheck />, color: "success" },
                                     { label: "Pages Read", value: stats?.totalPagesRead || 0, icon: <FileText />, color: "info" },
@@ -217,15 +217,15 @@ const UserDashboard = () => {
                                 ].map((stat, idx) => (
                                     <div
                                         key={idx}
-                                        className="bg-base-100 p-8 rounded-[2rem] border border-base-content/5 shadow-lg group hover:border-primary/20 transition-all"
+                                        className="bg-base-100 p-4 md:p-8 rounded-2xl md:rounded-[2rem] border border-base-content/5 shadow-lg group hover:border-primary/20 transition-all flex flex-col justify-center text-center md:text-left md:block"
                                     >
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className={`p-4 bg-${stat.color}/10 text-${stat.color} rounded-2xl group-hover:scale-110 transition-transform`}>
+                                        <div className="flex justify-center md:justify-between items-start mb-2 md:mb-4">
+                                            <div className={`p-2.5 md:p-4 bg-${stat.color}/10 text-${stat.color} rounded-xl md:rounded-2xl group-hover:scale-110 transition-transform`}>
                                                 {stat.icon}
                                             </div>
                                         </div>
-                                        <h3 className="text-4xl font-black text-base-content mb-1 tracking-tighter">{stat.value}</h3>
-                                        <p className="text-xs font-black uppercase tracking-widest text-base-content/40">{stat.label}</p>
+                                        <h3 className="text-2xl md:text-4xl font-black text-base-content mb-0.5 md:mb-1 tracking-tighter">{stat.value}</h3>
+                                        <p className="text-[9px] md:text-xs font-black uppercase tracking-widest text-base-content/40 leading-none">{stat.label}</p>
                                     </div>
                                 ))}
                             </div>
