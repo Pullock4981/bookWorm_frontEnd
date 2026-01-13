@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { TrendingUp, BookCheck, FileText, Target, Pencil, Trophy, Users, Star, BookOpen, Clock, ChevronRight } from "lucide-react";
+import { TrendingUp, BookCheck, FileText, Target, Pencil, Trophy, Users, Star, BookOpen, Clock, ChevronRight, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import statsService from "@/services/statsService";
 import socialService from "@/services/socialService";
 import recommendationService from "@/services/recommendationService";
+import favoriteService from "@/services/favoriteService";
 import Swal from "sweetalert2";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,6 +20,7 @@ const UserDashboard = () => {
     const [feedPage, setFeedPage] = useState(1);
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [followingList, setFollowingList] = useState([]);
+    const [favorites, setFavorites] = useState([]);
     const [recommendations, setRecommendations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
@@ -43,7 +45,16 @@ const UserDashboard = () => {
             setFeed(feedRes.data || []);
             setRecommendations(recRes.data || []);
             setSuggestedUsers(suggestionsRes.data || []);
+            setRecommendations(recRes.data || []);
+            setSuggestedUsers(suggestionsRes.data || []);
             setFollowingList(followingRes.data || []);
+
+            try {
+                const favRes = await favoriteService.getMyFavorites();
+                setFavorites(favRes.data.data || []);
+            } catch (err) {
+                console.error("Failed to fetch favorites", err);
+            }
 
             if (statsRes.data.data.goal) {
                 setGoalTarget(statsRes.data.data.goal.target);
@@ -239,20 +250,20 @@ const UserDashboard = () => {
                                 </div>
 
                                 {recommendations.length > 0 ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
-                                        {recommendations.map((book) => (
+                                    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-4">
+                                        {recommendations.slice(0, 8).map((book) => (
                                             <Link
                                                 href={`/books/${book._id}`}
                                                 key={book._id}
                                                 className="group block"
                                             >
                                                 {/* Professional Minimal Card */}
-                                                <div className="relative aspect-[2/3] rounded-[2rem] overflow-hidden bg-base-200 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500">
+                                                <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-base-200 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300">
                                                     {book.coverImage && (
                                                         <img
                                                             src={book.coverImage.startsWith('http') ? book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${book.coverImage}`}
                                                             alt={book.title}
-                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
                                                                 e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?q=80&w=600&auto=format&fit=crop";
@@ -261,27 +272,20 @@ const UserDashboard = () => {
                                                     )}
 
                                                     {/* Minimal Overlay info on hover */}
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
-                                                        <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">
-                                                            Recommendation
-                                                        </p>
-                                                        <p className="text-xs font-bold text-white leading-tight line-clamp-2">
-                                                            {book.recommendationReason}
-                                                        </p>
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <div className="bg-white/90 p-2 rounded-full transform scale-50 group-hover:scale-100 transition-transform duration-300 shadow-xl">
+                                                            <ChevronRight size={16} className="text-black" />
+                                                        </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-4 px-1">
-                                                    <h3 className="font-black text-sm text-base-content leading-tight mb-1 truncate">{book.title}</h3>
+                                                <div className="mt-2 px-1">
+                                                    <h3 className="font-bold text-xs text-base-content leading-tight mb-1 truncate">{book.title}</h3>
                                                     <div className="flex items-center gap-2">
                                                         <div className="flex items-center gap-0.5 text-warning">
-                                                            <Star size={10} fill="currentColor" />
-                                                            <span className="text-[10px] font-black">{book.averageRating?.toFixed(1) || '0.0'}</span>
+                                                            <Star size={8} fill="currentColor" />
+                                                            <span className="text-[9px] font-bold">{book.averageRating?.toFixed(1) || '0.0'}</span>
                                                         </div>
-                                                        <span className="text-[10px] font-bold text-base-content/30 uppercase tracking-wider">•</span>
-                                                        <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider truncate">
-                                                            {book.genre?.name || 'Reading'}
-                                                        </span>
                                                     </div>
                                                 </div>
                                             </Link>
@@ -290,6 +294,55 @@ const UserDashboard = () => {
                                 ) : (
                                     <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border border-base-content/5">
                                         <p className="text-sm font-bold text-base-content/30 uppercase tracking-[0.2em]">Analyzing reading habits...</p>
+                                    </div>
+                                )}
+                            </section>
+
+                            {/* My Favorites Section */}
+                            <section className="mb-20">
+                                <div className="flex items-end justify-between mb-10 px-2">
+                                    <div>
+                                        <h2 className="text-xl font-black text-base-content tracking-tight mb-1 flex items-center gap-2">
+                                            <Heart className="text-red-500 fill-red-500" size={24} /> My Favorites
+                                        </h2>
+                                        <div className="h-1 w-12 bg-red-500 rounded-full"></div>
+                                    </div>
+                                </div>
+
+                                {favorites.length > 0 ? (
+                                    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-4">
+                                        {favorites.map((fav) => (
+                                            <Link
+                                                href={fav.book ? `/books/${fav.book._id}` : '#'}
+                                                key={fav._id}
+                                                className="group block"
+                                            >
+                                                <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-base-200 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300">
+                                                    {fav.book?.coverImage && (
+                                                        <img
+                                                            src={fav.book.coverImage.startsWith('http') ? fav.book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${fav.book.coverImage}`}
+                                                            alt={fav.book.title}
+                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                        />
+                                                    )}
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <div className="bg-white/90 p-2 rounded-full transform scale-50 group-hover:scale-100 transition-transform duration-300 shadow-xl">
+                                                            <ChevronRight size={16} className="text-black" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-2 px-1">
+                                                    <h3 className="font-bold text-xs text-base-content leading-tight mb-1 truncate">{fav.book?.title}</h3>
+                                                    <div className="flex items-center gap-0.5 text-base-content/40">
+                                                        <span className="text-[9px] font-bold truncate">{fav.book?.author}</span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border border-base-content/5">
+                                        <p className="text-sm font-bold text-base-content/30 uppercase tracking-[0.2em]">No favorites yet.</p>
                                     </div>
                                 )}
                             </section>

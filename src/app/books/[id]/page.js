@@ -11,6 +11,7 @@ import { Star, BookOpen, Clock, Calendar, Heart, Share2, MessageSquare, BookMark
 import bookService from "@/services/bookService";
 import reviewService from "@/services/reviewService";
 import libraryService from "@/services/libraryService";
+import favoriteService from "@/services/favoriteService";
 import Swal from "sweetalert2";
 
 const BookDetails = () => {
@@ -30,6 +31,7 @@ const BookDetails = () => {
         if (id) {
             fetchBookDetails();
             fetchBookReviews();
+            checkFavoriteStatus();
         }
     }, [id]);
 
@@ -43,6 +45,15 @@ const BookDetails = () => {
             router.push('/books');
         } finally {
             setLoading(false);
+        }
+    };
+
+    const checkFavoriteStatus = async () => {
+        try {
+            const res = await favoriteService.checkFavoriteStatus(id);
+            setIsLiked(res.data.isFavorited);
+        } catch (error) {
+            console.error("Error checking favorite status:", error);
         }
     };
 
@@ -109,16 +120,22 @@ const BookDetails = () => {
         }
     };
 
-    const handleFavorite = () => {
-        setIsLiked(!isLiked);
-        Swal.fire({
-            toast: true,
-            position: 'top-end',
-            icon: !isLiked ? 'success' : 'info',
-            title: !isLiked ? 'Added to favorites' : 'Removed from favorites',
-            showConfirmButton: false,
-            timer: 2000
-        });
+    const handleFavorite = async () => {
+        try {
+            const res = await favoriteService.toggleFavorite(id);
+            setIsLiked(res.data.isFavorited);
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: res.data.isFavorited ? 'success' : 'info',
+                title: res.data.message,
+                showConfirmButton: false,
+                timer: 2000
+            });
+        } catch (error) {
+            console.error("Favorite toggle failed", error);
+        }
     };
 
     const handleSubmitReview = async (e) => {
@@ -236,10 +253,6 @@ const BookDetails = () => {
                                                 <li><button className="font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl" onClick={() => handleAddToShelf('Read')}>Finished Read</button></li>
                                             </ul>
                                         </div>
-
-                                        <a href={book.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn btn-outline border-base-content/20 hover:bg-base-200 hover:border-transparent rounded-2xl font-black h-14 px-8 transition-all">
-                                            <BookOpen size={20} /> READ SAMPLE
-                                        </a>
 
                                         <button
                                             onClick={handleFavorite}
