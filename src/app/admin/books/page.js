@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import AdminLayout from "@/components/AdminLayout";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { BookText, Plus, Search, Filter, Pencil, Trash2, X, Upload, Loader2, FileText } from "lucide-react";
+import { BookText, Plus, Search, Filter, Pencil, Trash2, X, Upload, Loader2, FileText, ExternalLink } from "lucide-react";
 import bookService from "@/services/bookService";
 import genreService from "@/services/genreService";
 import Swal from "sweetalert2";
@@ -84,7 +84,7 @@ const ManageBooks = () => {
                 pdfFile: null
             });
             setCoverPreview(book.coverImage);
-            setPdfName(null); // Reset PDF name preview
+            setPdfName(book.pdfUrl ? "Current PDF Available" : null);
         } else {
             setEditingBook(null);
             setFormData({
@@ -425,6 +425,19 @@ const ManageBooks = () => {
                                                 </span>
                                             </div>
                                         </div>
+                                        {editingBook?.pdfUrl && !formData.pdfFile && (
+                                            <div className="mt-2 text-center">
+                                                <a
+                                                    href={editingBook.pdfUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="text-xs font-bold text-primary hover:underline flex items-center justify-center gap-1"
+                                                >
+                                                    <ExternalLink size={12} /> View Stored PDF
+                                                </a>
+                                                <p className="text-[10px] text-base-content/40 mt-1">Confirmed from Database</p>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 

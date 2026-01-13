@@ -9,8 +9,8 @@ const libraryService = {
         const response = await api.get('/library');
         return response.data.data;
     },
-    updateProgress: async (id, pagesRead) => {
-        const response = await api.patch(`/library/progress/${id}`, { pagesRead });
+    updateProgress: async (id, pagesRead, totalPages) => {
+        const response = await api.patch(`/library/progress/${id}`, { pagesRead, totalPages });
         return response.data.data;
     },
     removeFromLibrary: async (id) => {

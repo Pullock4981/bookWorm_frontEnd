@@ -93,6 +93,24 @@ const MyLibrary = () => {
         }
     };
 
+    const handleStartReading = async (id) => {
+        try {
+            await libraryService.addToLibrary(id, "Currently Reading");
+            fetchLibrary();
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Book moved to Currently Reading',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            setActiveShelf("Currently Reading");
+        } catch (err) {
+            Swal.fire("Error", "Failed to start reading", "error");
+        }
+    };
+
     const filteredItems = libraryItems.filter(item => item.shelf === activeShelf);
 
     return (
@@ -134,11 +152,11 @@ const MyLibrary = () => {
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
-                                        className="group relative bg-base-200/40 backdrop-blur-sm rounded-[2.5rem] border border-base-content/5 overflow-hidden shadow-sm hover:shadow-2xl hover:border-primary/20 transition-all duration-500"
+                                        className="group relative bg-base-200/40 backdrop-blur-sm rounded-3xl border border-base-content/5 overflow-hidden shadow-sm hover:shadow-2xl hover:border-primary/20 transition-all duration-500"
                                     >
-                                        <div className="flex h-56">
+                                        <div className="flex h-full sm:h-52 flex-col sm:flex-row">
                                             {/* Book Cover */}
-                                            <Link href={`/books/${item.book?._id}`} className="w-1/3 shrink-0 relative overflow-hidden group-hover:shadow-2xl transition-all duration-500">
+                                            <Link href={`/books/${item.book?._id}`} className="sm:w-36 w-full h-48 sm:h-full shrink-0 relative overflow-hidden group-hover:shadow-lg transition-all duration-500">
                                                 <img
                                                     src={item.book?.coverImage || "https://images.unsplash.com/photo-1543004471-2401c3eaa9c8?w=300"}
                                                     alt={item.book?.title}
@@ -146,65 +164,91 @@ const MyLibrary = () => {
                                                 />
                                                 <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                                 <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span className="bg-white/90 text-primary text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">VIEW DETAILS</span>
+                                                    <span className="bg-white/90 text-primary text-[10px] font-black px-3 py-1.5 rounded-full shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">VIEW</span>
                                                 </div>
                                             </Link>
 
                                             {/* Content */}
-                                            <div className="flex-grow p-6 flex flex-col justify-between">
+                                            <div className="flex-grow p-5 flex flex-col justify-between h-auto sm:h-full">
                                                 <div className="space-y-1">
                                                     <div className="flex justify-between items-start">
-                                                        <span className="px-2.5 py-1 rounded-lg bg-primary/10 text-primary font-black text-[9px] uppercase tracking-wider">{item.book?.genre?.name || 'BOOK'}</span>
+                                                        <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold text-[9px] uppercase tracking-wider">{item.book?.genre?.name || 'BOOK'}</span>
                                                         <button
                                                             onClick={(e) => { e.preventDefault(); handleRemove(item.book._id); }}
-                                                            className="btn btn-ghost btn-xs btn-circle text-error/30 hover:text-error hover:bg-error/10 transition-all"
+                                                            className="text-base-content/20 hover:text-error transition-colors"
                                                             title="Remove from library"
                                                         >
-                                                            <Trash2 size={14} />
+                                                            <Trash2 size={16} />
                                                         </button>
                                                     </div>
                                                     <Link href={`/books/${item.book?._id}`}>
-                                                        <h3 className="font-black text-base-content leading-tight hover:text-primary transition-colors line-clamp-2 mt-1">{item.book?.title}</h3>
+                                                        <h3 className="font-bold text-base-content leading-tight hover:text-primary transition-colors line-clamp-1 mt-1 text-lg" title={item.book?.title}>{item.book?.title}</h3>
                                                     </Link>
-                                                    <p className="text-[11px] font-bold text-base-content/40 uppercase tracking-tight">by {item.book?.author}</p>
+                                                    <p className="text-xs font-medium text-base-content/50 uppercase tracking-wide truncate">by {item.book?.author}</p>
                                                 </div>
 
                                                 <div className="mt-4">
                                                     {item.shelf === "Currently Reading" ? (
                                                         <div className="space-y-3">
-                                                            <div className="flex justify-between items-end">
-                                                                <div className="flex flex-col">
-                                                                    <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest">Progress</span>
-                                                                    <span className="text-sm font-black">{Math.round((item.pagesRead / item.book?.totalPages) * 100) || 0}%</span>
+                                                            <div className="flex justify-between items-center bg-base-100 rounded-lg border border-base-content/5 p-2">
+                                                                <div className="text-xs font-bold text-base-content/60">
+                                                                    {Math.round((item.pagesRead / item.book?.totalPages) * 100) || 0}%
                                                                 </div>
-                                                                <div className="flex items-center gap-1.5 bg-base-100/50 px-2 py-1 rounded-lg border border-base-content/5">
+                                                                <div className="flex items-center gap-1">
                                                                     <input
                                                                         type="number"
-                                                                        className="w-12 bg-transparent text-center font-black text-xs focus:outline-none"
+                                                                        className="w-10 bg-transparent text-right font-bold text-sm focus:outline-none text-primary"
                                                                         defaultValue={item.pagesRead}
                                                                         onBlur={(e) => handleUpdateProgress(item.book._id, parseInt(e.target.value), item.book?.totalPages)}
                                                                     />
-                                                                    <span className="text-[10px] font-bold opacity-30">/ {item.book?.totalPages}</span>
+                                                                    <span className="text-[10px] font-bold opacity-40">/ {item.book?.totalPages}</span>
                                                                 </div>
                                                             </div>
-                                                            <div className="w-full bg-base-content/5 h-2 rounded-full overflow-hidden">
+                                                            <div className="w-full bg-base-content/5 h-1.5 rounded-full overflow-hidden">
                                                                 <motion.div
-                                                                    className="h-full bg-gradient-to-r from-primary to-accent"
+                                                                    className="h-full bg-primary"
                                                                     initial={{ width: 0 }}
                                                                     animate={{ width: `${(item.pagesRead / item.book?.totalPages) * 100 || 0}%` }}
                                                                     transition={{ duration: 1, ease: "easeOut" }}
                                                                 ></motion.div>
                                                             </div>
+                                                            {item.book?.pdfUrl ? (
+                                                                <Link
+                                                                    href={`/books/${item.book?._id}/read`}
+                                                                    className="btn btn-primary btn-sm w-full rounded-lg font-bold text-primary-content shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
+                                                                >
+                                                                    <BookOpen size={14} /> Continue
+                                                                </Link>
+                                                            ) : (
+                                                                <Link
+                                                                    href={`/books/${item.book?._id}`}
+                                                                    className="btn btn-primary btn-sm w-full rounded-lg font-bold text-primary-content shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
+                                                                >
+                                                                    <BookOpen size={14} /> Continue
+                                                                </Link>
+                                                            )}
+
                                                         </div>
                                                     ) : item.shelf === "Read" ? (
-                                                        <div className="flex items-center gap-2 text-success bg-success/5 px-3 py-1.5 rounded-xl border border-success/10 w-fit">
-                                                            <CheckCircle2 size={14} />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest">Finished</span>
+                                                        <div className="flex items-center gap-2 text-success bg-success/5 px-3 py-2 rounded-lg border border-success/10 w-full justify-center">
+                                                            <CheckCircle2 size={16} />
+                                                            <span className="text-xs font-bold uppercase tracking-wider">Completed</span>
                                                         </div>
                                                     ) : (
-                                                        <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-1.5 rounded-xl border border-primary/10 w-fit">
-                                                            <Bookmark size={14} fill="currentColor" />
-                                                            <span className="text-[10px] font-black uppercase tracking-widest">On Wishlist</span>
+                                                        <div className="space-y-3">
+                                                            <div className="flex items-center gap-2 text-primary bg-primary/5 px-3 py-2 rounded-lg border border-primary/10 w-full justify-center">
+                                                                <Bookmark size={16} fill="currentColor" />
+                                                                <span className="text-xs font-bold uppercase tracking-wider">Wishlist</span>
+                                                            </div>
+                                                            <button
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    handleStartReading(item.book._id);
+                                                                }}
+                                                                className="btn btn-primary btn-sm w-full rounded-lg font-bold text-primary-content shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
+                                                            >
+                                                                <Flame size={14} /> Start Reading
+                                                            </button>
                                                         </div>
                                                     )}
                                                 </div>
@@ -227,8 +271,8 @@ const MyLibrary = () => {
                 </main>
 
                 <Footer />
-            </div>
-        </ProtectedRoute>
+            </div >
+        </ProtectedRoute >
     );
 };
 
