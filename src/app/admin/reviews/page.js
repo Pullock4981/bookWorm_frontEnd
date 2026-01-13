@@ -112,9 +112,13 @@ const ModerateReviews = () => {
                                             </div>
 
                                             <div className="flex items-start gap-4">
-                                                <div className="avatar placeholder pt-1">
-                                                    <div className="bg-neutral text-neutral-content rounded-full w-10">
-                                                        <span className="text-xs font-bold">{review.user?.name?.[0] || 'U'}</span>
+                                                <div className="avatar">
+                                                    <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                                        {review.user?.photo ? (
+                                                            <img src={review.user.photo} alt={review.user.name} />
+                                                        ) : (
+                                                            <img src={`https://ui-avatars.com/api/?name=${review.user?.name}&background=random`} alt={review.user?.name} />
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div>
