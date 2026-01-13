@@ -45,8 +45,8 @@ const LoginPage = () => {
                 animate={{ opacity: 1, y: 0 }}
                 className="w-full max-w-5xl bg-base-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-primary/10"
             >
-                {/* Left Side: Illustration & Branding */}
-                <div className="md:w-1/2 bg-primary p-12 text-white flex flex-col justify-center items-center relative overflow-hidden">
+                {/* Left Side: Illustration & Branding - Hidden on small devices for minimalism */}
+                <div className="hidden md:flex md:w-1/2 bg-primary p-12 text-white flex flex-col justify-center items-center relative overflow-hidden">
                     <div className="absolute inset-0 opacity-10 flex flex-wrap gap-8 p-4 rotate-12 pointer-events-none">
                         {[...Array(20)].map((_, i) => <BookOpen key={i} size={48} />)}
                     </div>
@@ -67,10 +67,15 @@ const LoginPage = () => {
                 </div>
 
                 {/* Right Side: Form */}
-                <div className="md:w-1/2 p-8 md:p-12 lg:p-16 bg-base-200">
-                    <div className="mb-6 md:mb-10">
-                        <h2 className="text-3xl font-black text-base-content mb-2">Member Login</h2>
-                        <p className="text-base-content/50 font-bold text-sm">Access your shelves and continue reading.</p>
+                <div className="w-full md:w-1/2 p-8 md:p-12 lg:p-16 bg-base-200">
+                    <div className="md:hidden flex justify-center mb-8">
+                        <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+                            <BookOpen size={24} className="text-primary-content" />
+                        </div>
+                    </div>
+                    <div className="mb-6 md:mb-10 text-center md:text-left">
+                        <h2 className="text-2xl md:text-3xl font-black text-base-content mb-2 tracking-tight uppercase">Member Login</h2>
+                        <p className="text-base-content/50 font-bold text-sm tracking-wide">Continue your reading journey.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">

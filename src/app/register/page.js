@@ -57,8 +57,8 @@ const RegisterPage = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-5xl bg-base-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row-reverse border border-primary/10"
             >
-                {/* Side Illustration */}
-                <div className="md:w-1/2 bg-neutral p-12 text-white flex flex-col justify-center items-center relative overflow-hidden">
+                {/* Side Illustration - Hidden on mobile for minimalism */}
+                <div className="hidden md:flex md:w-1/2 bg-neutral p-12 text-white flex flex-col justify-center items-center relative overflow-hidden">
                     <div className="absolute inset-0 opacity-5 flex flex-wrap gap-8 p-4 rotate-[-12deg] pointer-events-none">
                         {[...Array(20)].map((_, i) => <BookOpen key={i} size={48} />)}
                     </div>
@@ -80,13 +80,18 @@ const RegisterPage = () => {
                 </div>
 
                 {/* Form Side */}
-                <div className="md:w-1/2 p-6 md:p-10 lg:p-14 bg-base-200">
-                    <div className="mb-8">
-                        <Link href="/login" className="btn btn-ghost btn-sm text-primary mb-4 p-0 hover:bg-transparent">
+                <div className="w-full md:w-1/2 p-6 md:p-10 lg:p-14 bg-base-200">
+                    <div className="md:hidden flex justify-center mb-6">
+                        <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center shadow-lg">
+                            <UserPlus size={24} className="text-primary-content" />
+                        </div>
+                    </div>
+                    <div className="mb-6 md:mb-8 text-center md:text-left">
+                        <Link href="/login" className="hidden md:inline-flex btn btn-ghost btn-sm text-primary mb-4 p-0 hover:bg-transparent">
                             ← Back to Login
                         </Link>
-                        <h2 className="text-3xl font-black text-base-content mb-2">Create Account</h2>
-                        <p className="text-base-content/60 font-medium italic">Join the BookWorm community today.</p>
+                        <h2 className="text-2xl md:text-3xl font-black text-base-content mb-1 tracking-tight uppercase">Create Account</h2>
+                        <p className="text-base-content/60 font-medium italic text-sm">Join the BookWorm community.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-2 md:space-y-4">
