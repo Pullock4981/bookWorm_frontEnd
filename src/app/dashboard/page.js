@@ -4,8 +4,9 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { TrendingUp, BookCheck, FileText, Target, Pencil, Trophy, Users, Star, BookOpen, Clock, ChevronRight, Heart } from "lucide-react";
+import { TrendingUp, BookCheck, FileText, Target, Pencil, Trophy, Users, Star, BookOpen, Clock, ChevronRight, Heart, Flame } from "lucide-react";
 import { motion } from "framer-motion";
+import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import statsService from "@/services/statsService";
 import socialService from "@/services/socialService";
 import recommendationService from "@/services/recommendationService";
@@ -207,12 +208,12 @@ const UserDashboard = () => {
                                 </div>
                             </section>
 
-                            {/* Stats Grid */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                                 {[
                                     { label: "Books Read", value: stats?.totalBooksRead || 0, icon: <BookCheck />, color: "success" },
                                     { label: "Pages Read", value: stats?.totalPagesRead || 0, icon: <FileText />, color: "info" },
                                     { label: "Average Rating", value: stats?.avgRatingGiven || "N/A", icon: <TrendingUp />, color: "warning" },
+                                    { label: "Reading Streak", value: `${stats?.streak || 0} Days`, icon: <Flame />, color: "error" },
                                 ].map((stat, idx) => (
                                     <div
                                         key={idx}
@@ -227,6 +228,109 @@ const UserDashboard = () => {
                                         <p className="text-xs font-black uppercase tracking-widest text-base-content/40">{stat.label}</p>
                                     </div>
                                 ))}
+                            </div>
+
+                            {/* Charts Section */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+                                {/* Genre Distribution Chart */}
+                                <div className="bg-base-100 p-8 rounded-[2.5rem] border border-base-content/5 shadow-sm hover:shadow-lg transition-shadow">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="p-2 bg-primary/10 rounded-xl text-primary">
+                                            <Trophy size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-lg text-base-content">Favorite Genres</h3>
+                                            <p className="text-xs text-base-content/50 font-bold uppercase tracking-wider">Top categories</p>
+                                        </div>
+                                    </div>
+                                    <div className="h-[300px] w-full">
+                                        {stats?.genreBreakdown?.length > 0 ? (
+                                            <ResponsiveContainer width="100%" height="100%">
+                                                <PieChart>
+                                                    <Pie
+                                                        data={stats.genreBreakdown}
+                                                        cx="50%"
+                                                        cy="50%"
+                                                        innerRadius={60}
+                                                        outerRadius={100}
+                                                        paddingAngle={5}
+                                                        dataKey="value"
+                                                        stroke="none"
+                                                    >
+                                                        {stats.genreBreakdown.map((entry, index) => (
+                                                            <Cell key={`cell-${index}`} fill={['#8B4513', '#D2B48C', '#DEB887', '#F4A460', '#BC8F8F'][index % 5]} />
+                                                        ))}
+                                                    </Pie>
+                                                    <Tooltip
+                                                        contentStyle={{
+                                                            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                                            borderRadius: '16px',
+                                                            border: 'none',
+                                                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                                                        }}
+                                                        itemStyle={{ fontWeight: 'bold' }}
+                                                    />
+                                                    <Legend
+                                                        verticalAlign="bottom"
+                                                        height={36}
+                                                        iconType="circle"
+                                                        wrapperStyle={{ fontSize: '10px', fontWeight: 'bold', opacity: 0.7, textTransform: 'uppercase' }}
+                                                    />
+                                                </PieChart>
+                                            </ResponsiveContainer>
+                                        ) : (
+                                            <div className="h-full flex items-center justify-center text-base-content/20 font-bold text-sm uppercase tracking-widest">
+                                                No genre data yet
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Reading Progress Chart */}
+                                <div className="bg-base-100 p-8 rounded-[2.5rem] border border-base-content/5 shadow-sm hover:shadow-lg transition-shadow">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="p-2 bg-secondary/10 rounded-xl text-secondary">
+                                            <BookCheck size={20} />
+                                        </div>
+                                        <div>
+                                            <h3 className="font-black text-lg text-base-content">Monthly Reading</h3>
+                                            <p className="text-xs text-base-content/50 font-bold uppercase tracking-wider">Books finished in {new Date().getFullYear()}</p>
+                                        </div>
+                                    </div>
+                                    <div className="h-[300px] w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={stats?.monthlyStats || []}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                                                <XAxis
+                                                    dataKey="name"
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    tick={{ fontSize: 10, fontWeight: 'bold', fill: 'currentColor', opacity: 0.5 }}
+                                                />
+                                                <YAxis
+                                                    axisLine={false}
+                                                    tickLine={false}
+                                                    tick={{ fontSize: 10, fontWeight: 'bold', fill: 'currentColor', opacity: 0.5 }}
+                                                />
+                                                <Tooltip
+                                                    cursor={{ fill: 'currentColor', opacity: 0.05 }}
+                                                    contentStyle={{
+                                                        backgroundColor: 'var(--b1)',
+                                                        borderRadius: '12px',
+                                                        border: '1px solid var(--b3)',
+                                                        padding: '8px 12px'
+                                                    }}
+                                                />
+                                                <Bar
+                                                    dataKey="books"
+                                                    fill="#8B4513"
+                                                    radius={[4, 4, 0, 0]}
+                                                    barSize={20}
+                                                />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
                             </div>
 
                             {/* Minimal Personalized Recommendations Section */}

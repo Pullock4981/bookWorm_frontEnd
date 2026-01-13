@@ -7,10 +7,16 @@ const DashboardSkeleton = () => {
             <div className="h-48 bg-base-200 rounded-[2.5rem]"></div>
 
             {/* Stats Grid Skeleton */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[1, 2, 3].map((i) => (
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                {[1, 2, 3, 4].map((i) => (
                     <div key={i} className="h-32 bg-base-200 rounded-[2rem]"></div>
                 ))}
+            </div>
+
+            {/* Charts Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="h-96 bg-base-200 rounded-[2.5rem]"></div>
+                <div className="h-96 bg-base-200 rounded-[2.5rem]"></div>
             </div>
 
             {/* Recommendations Skeleton */}
