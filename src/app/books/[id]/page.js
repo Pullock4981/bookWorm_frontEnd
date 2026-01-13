@@ -258,19 +258,19 @@ const BookDetails = () => {
                                     </div>
 
                                     {/* Action Buttons */}
-                                    <div className="flex flex-wrap gap-4 pt-6">
-                                        <div className="dropdown dropdown-bottom dropdown-end md:dropdown-start">
-                                            <button tabIndex={0} className={`btn ${currentShelf ? 'btn-accent' : 'btn-primary'} rounded-2xl font-black h-14 px-8 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all`}>
-                                                <BookMarked size={20} />
+                                    <div className="flex flex-wrap items-center gap-3 md:gap-4 pt-4 md:pt-6">
+                                        <div className="dropdown dropdown-bottom dropdown-start">
+                                            <button tabIndex={0} className={`btn ${currentShelf ? 'btn-accent' : 'btn-primary'} rounded-xl md:rounded-2xl font-black h-12 md:h-14 px-5 md:px-8 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all text-xs md:text-sm`}>
+                                                <BookMarked size={18} className="md:w-[20px] md:h-[20px]" />
                                                 {addingToShelf ? "UPDATING..." : (currentShelf ? `SHELF: ${currentShelf.toUpperCase()}` : "ADD TO SHELF")}
                                             </button>
-                                            <ul tabIndex={0} className="dropdown-content z-[50] menu p-3 shadow-2xl bg-base-100 rounded-[2rem] w-64 mt-4 border border-base-content/10 border-t-primary/20">
-                                                <li className="menu-title px-4 py-2 text-[10px] font-black uppercase tracking-widest opacity-40">
+                                            <ul tabIndex={0} className="dropdown-content z-[50] menu p-2 md:p-3 shadow-2xl bg-base-100 rounded-2xl md:rounded-[2rem] w-56 md:w-64 mt-2 md:mt-4 border border-base-content/10 border-t-primary/20">
+                                                <li className="menu-title px-4 py-2 text-[9px] md:text-[10px] font-black uppercase tracking-widest opacity-40">
                                                     {currentShelf ? "Move to different shelf" : "Choose a shelf"}
                                                 </li>
                                                 <li>
                                                     <button
-                                                        className={`font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1 ${currentShelf === 'Want to Read' ? 'bg-primary/10 text-primary' : ''}`}
+                                                        className={`font-bold py-2.5 md:py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1 text-sm md:text-base ${currentShelf === 'Want to Read' ? 'bg-primary/10 text-primary' : ''}`}
                                                         onClick={() => handleAddToShelf('Want to Read')}
                                                     >
                                                         Want to Read
@@ -278,7 +278,7 @@ const BookDetails = () => {
                                                 </li>
                                                 <li>
                                                     <button
-                                                        className={`font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1 ${currentShelf === 'Currently Reading' ? 'bg-primary/10 text-primary' : ''}`}
+                                                        className={`font-bold py-2.5 md:py-4 hover:bg-primary hover:text-white transition-all rounded-xl mb-1 text-sm md:text-base ${currentShelf === 'Currently Reading' ? 'bg-primary/10 text-primary' : ''}`}
                                                         onClick={() => handleAddToShelf('Currently Reading')}
                                                     >
                                                         Currently Reading
@@ -286,7 +286,7 @@ const BookDetails = () => {
                                                 </li>
                                                 <li>
                                                     <button
-                                                        className={`font-bold py-4 hover:bg-primary hover:text-white transition-all rounded-xl ${currentShelf === 'Read' ? 'bg-primary/10 text-primary' : ''}`}
+                                                        className={`font-bold py-2.5 md:py-4 hover:bg-primary hover:text-white transition-all rounded-xl text-sm md:text-base ${currentShelf === 'Read' ? 'bg-primary/10 text-primary' : ''}`}
                                                         onClick={() => handleAddToShelf('Read')}
                                                     >
                                                         Finished Read
@@ -297,18 +297,18 @@ const BookDetails = () => {
 
                                         <button
                                             onClick={handleFavorite}
-                                            className="btn btn-ghost border-base-content/10 rounded-2xl h-14 w-14 group transition-all"
+                                            className="btn btn-ghost border-base-content/10 rounded-xl md:rounded-2xl h-11 w-11 md:h-14 md:w-14 group transition-all p-0 flex items-center justify-center"
                                         >
                                             <Heart
-                                                size={20}
-                                                className={`transition-all ${isLiked ? 'text-red-500 fill-red-500 scale-125' : 'group-hover:text-red-500 fill-transparent group-hover:fill-red-500'}`}
+                                                size={18}
+                                                className={`md:w-[20px] md:h-[20px] transition-all ${isLiked ? 'text-red-500 fill-red-500 scale-125' : 'group-hover:text-red-500 fill-transparent group-hover:fill-red-500'}`}
                                             />
                                         </button>
                                         <button
                                             onClick={handleShare}
-                                            className="btn btn-ghost border-base-content/10 rounded-2xl h-14 w-14 hover:bg-base-200 transition-all"
+                                            className="btn btn-ghost border-base-content/10 rounded-xl md:rounded-2xl h-11 w-11 md:h-14 md:w-14 hover:bg-base-200 transition-all p-0 flex items-center justify-center"
                                         >
-                                            <Share2 size={20} />
+                                            <Share2 size={18} className="md:w-[20px] md:h-[20px]" />
                                         </button>
                                     </div>
                                 </div>
