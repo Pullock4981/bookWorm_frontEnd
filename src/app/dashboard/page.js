@@ -281,11 +281,31 @@ const UserDashboard = () => {
 
                                                 <div className="mt-2 px-1">
                                                     <h3 className="font-bold text-xs text-base-content leading-tight mb-1 truncate">{book.title}</h3>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center justify-between">
                                                         <div className="flex items-center gap-0.5 text-warning">
                                                             <Star size={8} fill="currentColor" />
                                                             <span className="text-[9px] font-bold">{book.averageRating?.toFixed(1) || '0.0'}</span>
                                                         </div>
+
+                                                        {/* Recommendation Reason Tooltip */}
+                                                        {book.recommendationReason && (
+                                                            <div className="relative group/reason z-20" onClick={(e) => e.preventDefault()}>
+                                                                {/* Prevent link nav on tooltip click if needed, though simpler is just hover */}
+                                                                <div className="cursor-help opacity-40 hover:opacity-100 transition-opacity">
+                                                                    <div className="badge badge-xs badge-ghost gap-1 border-base-content/20 bg-base-100">
+                                                                        <span className="text-[8px] font-black uppercase tracking-wider text-primary">Why?</span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div className="absolute bottom-full right-0 mb-2 w-48 bg-base-300/90 backdrop-blur-md text-base-content p-3 rounded-xl shadow-xl border border-base-content/5 text-[10px] leading-relaxed font-medium opacity-0 invisible group-hover/reason:opacity-100 group-hover/reason:visible transition-all duration-200 pointer-events-none transform translate-y-2 group-hover/reason:translate-y-0">
+                                                                    <div className="absolute -bottom-1 right-3 w-2 h-2 bg-base-300/90 rotate-45"></div>
+                                                                    <span className="block font-bold text-primary mb-0.5 text-[9px] uppercase tracking-wider">
+                                                                        {book.recommendationReason.includes('Match') ? 'Because you read...' : 'Curated Choice'}
+                                                                    </span>
+                                                                    {book.recommendationReason}
+                                                                </div>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </Link>
