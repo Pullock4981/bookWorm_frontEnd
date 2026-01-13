@@ -80,7 +80,7 @@ const RegisterPage = () => {
                 </div>
 
                 {/* Form Side */}
-                <div className="md:w-1/2 p-10 lg:p-14">
+                <div className="md:w-1/2 p-6 md:p-10 lg:p-14">
                     <div className="mb-8">
                         <Link href="/login" className="btn btn-ghost btn-sm text-primary mb-4 p-0 hover:bg-transparent">
                             ← Back to Login
@@ -89,7 +89,7 @@ const RegisterPage = () => {
                         <p className="text-neutral-content/60 font-medium italic">Join the BookWorm community today.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-2 md:space-y-4">
                         <div className="grid grid-cols-1 gap-4">
                             <div className="form-control">
                                 <label className="label py-1"><span className="label-text font-bold">Full Name</span></label>
@@ -100,7 +100,7 @@ const RegisterPage = () => {
                                     <input
                                         type="text"
                                         placeholder="John Doe"
-                                        className="input input-bordered w-full pl-11 h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all"
+                                        className="input input-bordered w-full pl-11 h-10 md:h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all text-sm md:text-base"
                                         required
                                         value={formData.name}
                                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -117,7 +117,7 @@ const RegisterPage = () => {
                                     <input
                                         type="email"
                                         placeholder="john@example.com"
-                                        className="input input-bordered w-full pl-11 h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all"
+                                        className="input input-bordered w-full pl-11 h-10 md:h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all text-sm md:text-base"
                                         required
                                         value={formData.email}
                                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -134,7 +134,7 @@ const RegisterPage = () => {
                                     <input
                                         type="password"
                                         placeholder="Min 6 characters"
-                                        className="input input-bordered w-full pl-11 h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all"
+                                        className="input input-bordered w-full pl-11 h-10 md:h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all text-sm md:text-base"
                                         required
                                         minLength={6}
                                         value={formData.password}
@@ -154,7 +154,7 @@ const RegisterPage = () => {
                                     <input
                                         type="file"
                                         accept="image/*"
-                                        className="file-input file-input-bordered w-full pl-11 h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all"
+                                        className="file-input file-input-bordered w-full pl-11 h-10 md:h-12 bg-base-100 border-primary/10 focus:border-primary focus:outline-none transition-all text-sm"
                                         onChange={(e) => setPhoto(e.target.files[0])}
                                     />
                                 </div>
@@ -164,7 +164,7 @@ const RegisterPage = () => {
                         <div className="pt-4">
                             <button
                                 type="submit"
-                                className="btn btn-primary w-full h-12 text-md font-black shadow-xl shadow-primary/10 transition-all flex items-center justify-center"
+                                className="btn btn-primary w-full h-11 md:h-12 text-md font-black shadow-xl shadow-primary/10 transition-all flex items-center justify-center"
                                 disabled={isLoading}
                             >
                                 {isLoading ? (

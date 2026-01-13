@@ -82,8 +82,8 @@ const BrowseBooks = () => {
         <ProtectedRoute>
             <div className="flex flex-col min-h-screen bg-base-100">
                 <Navbar />
-                <main className="flex-grow max-w-screen-2xl mx-auto px-4 md:px-8 py-10 w-full relative">
-                    <header className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-30">
+                <main className="flex-grow max-w-screen-2xl mx-auto px-4 md:px-8 py-6 md:py-10 w-full relative">
+                    <header className="mb-6 md:mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6 relative z-30">
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight uppercase">Browse Collection</h1>
                             <p className="text-base-content/50 text-sm font-medium">Find your next great adventure. Search by title, author, or explore by genre.</p>
@@ -97,7 +97,7 @@ const BrowseBooks = () => {
                                     <input
                                         type="text"
                                         placeholder="Search title, author..."
-                                        className="input input-bordered w-full pl-11 rounded-xl bg-base-200/50 border-transparent focus:border-primary/20 focus:bg-base-100 font-bold transition-all text-sm h-12"
+                                        className="input input-bordered w-full pl-11 rounded-xl bg-base-200/50 border-transparent focus:border-primary/20 focus:bg-base-100 font-bold transition-all text-sm h-11 md:h-12"
                                         value={searchTerm}
                                         onChange={(e) => setSearchTerm(e.target.value)}
                                     />
@@ -105,13 +105,13 @@ const BrowseBooks = () => {
 
                                 <button
                                     onClick={() => setShowFilters(!showFilters)}
-                                    className={`btn h-12 rounded-xl border-none font-bold text-sm px-6 ${showFilters ? 'bg-primary text-primary-content' : 'bg-base-200/50 hover:bg-base-200'}`}
+                                    className={`btn h-11 md:h-12 rounded-xl border-none font-bold text-sm px-6 ${showFilters ? 'bg-primary text-primary-content' : 'bg-base-200/50 hover:bg-base-200'}`}
                                 >
                                     <Filter size={18} /> {showFilters ? 'Hide Filters' : 'Filters'}
                                 </button>
 
                                 <select
-                                    className="select select-bordered rounded-xl bg-base-100 border-base-content/10 font-bold text-sm h-12 w-full md:w-48 shadow-sm focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
+                                    className="select select-bordered rounded-xl bg-base-100 border-base-content/10 font-bold text-sm h-11 md:h-12 w-full md:w-48 shadow-sm focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
                                     value={sortBy}
                                     onChange={(e) => setSortBy(e.target.value)}
                                 >
@@ -127,7 +127,7 @@ const BrowseBooks = () => {
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.95, y: -10 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    className="bg-base-100 p-6 rounded-[2rem] border border-base-content/10 shadow-2xl space-y-6 relative z-40"
+                                    className="bg-base-100 p-4 md:p-6 rounded-[2rem] border border-base-content/10 shadow-2xl space-y-6 relative z-40"
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                         {/* Genre Multi-select */}

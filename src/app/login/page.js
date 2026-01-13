@@ -67,13 +67,13 @@ const LoginPage = () => {
                 </div>
 
                 {/* Right Side: Form */}
-                <div className="md:w-1/2 p-12 lg:p-16">
-                    <div className="mb-10">
+                <div className="md:w-1/2 p-8 md:p-12 lg:p-16">
+                    <div className="mb-6 md:mb-10">
                         <h2 className="text-3xl font-black text-neutral mb-2">Member Login</h2>
                         <p className="text-neutral/50 font-bold text-sm">Access your shelves and continue reading.</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                         <div className="form-control">
                             <label className="label">
                                 <span className="label-text font-bold text-neutral">Email Address</span>
@@ -85,7 +85,7 @@ const LoginPage = () => {
                                 <input
                                     type="email"
                                     placeholder="john@example.com"
-                                    className="input input-bordered w-full pl-12 h-14 bg-base-100 border-primary/10 focus:border-primary focus:outline-none focus:ring-2 ring-primary/10 transition-all font-medium"
+                                    className="input input-bordered w-full pl-12 h-11 md:h-14 bg-base-100 border-primary/10 focus:border-primary focus:outline-none focus:ring-2 ring-primary/10 transition-all font-medium text-sm md:text-base"
                                     required
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
@@ -104,7 +104,7 @@ const LoginPage = () => {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     placeholder="••••••••"
-                                    className="input input-bordered w-full pl-12 pr-12 h-14 bg-base-100 border-primary/10 focus:border-primary focus:outline-none focus:ring-2 ring-primary/10 transition-all font-medium"
+                                    className="input input-bordered w-full pl-12 pr-12 h-11 md:h-14 bg-base-100 border-primary/10 focus:border-primary focus:outline-none focus:ring-2 ring-primary/10 transition-all font-medium text-sm md:text-base"
                                     required
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
@@ -124,7 +124,7 @@ const LoginPage = () => {
 
                         <button
                             type="submit"
-                            className="btn btn-primary w-full h-14 text-lg font-black shadow-lg shadow-primary/20 transition-all group"
+                            className="btn btn-primary w-full h-12 md:h-14 text-base md:text-lg font-black shadow-lg shadow-primary/20 transition-all group"
                             disabled={isLoading}
                         >
                             {isLoading ? (
@@ -137,7 +137,7 @@ const LoginPage = () => {
                             )}
                         </button>
 
-                        <div className="text-center mt-10 p-8 rounded-[2rem] bg-neutral/5 border border-neutral/10">
+                        <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-neutral/5 border border-neutral/10">
                             <p className="text-neutral/40 font-black text-[10px] uppercase tracking-widest mb-4">
                                 New to BookWorm?
                             </p>
