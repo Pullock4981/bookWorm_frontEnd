@@ -137,18 +137,19 @@ const LoginPage = () => {
                             )}
                         </button>
 
-                        <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-neutral/5 border border-neutral/10">
-                            <p className="text-neutral/40 font-black text-[10px] uppercase tracking-widest mb-4">
-                                New to BookWorm?
-                            </p>
-                            <Link
-                                href="/register"
-                                className="btn btn-primary btn-outline border-2 w-full rounded-xl font-black hover:bg-primary hover:text-white transition-all h-12"
-                            >
-                                <UserPlus size={18} className="mr-2" /> Register Here
-                            </Link>
-                        </div>
                     </form>
+
+                    <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-neutral/5 border border-neutral/10 relative z-20">
+                        <p className="text-neutral/40 font-black text-[10px] uppercase tracking-widest mb-4">
+                            New to BookWorm?
+                        </p>
+                        <Link
+                            href="/register"
+                            className="btn btn-primary btn-outline border-2 w-full rounded-xl font-black hover:bg-primary hover:text-white transition-all h-12 flex items-center justify-center cursor-pointer"
+                        >
+                            <UserPlus size={18} className="mr-2" /> Register Here
+                        </Link>
+                    </div>
                 </div>
             </motion.div>
         </div>

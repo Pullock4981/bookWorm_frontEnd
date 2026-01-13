@@ -178,15 +178,16 @@ const RegisterPage = () => {
                             </button>
                         </div>
 
-                        <div className="text-center mt-6">
-                            <p className="text-neutral-content/60 text-sm font-medium">
-                                Already have an account?{" "}
-                                <Link href="/login" className="text-primary font-black hover:underline underline-offset-4">
-                                    Login Here
-                                </Link>
-                            </p>
-                        </div>
                     </form>
+
+                    <div className="text-center mt-6 relative z-20">
+                        <p className="text-neutral-content/60 text-sm font-medium">
+                            Already have an account?{" "}
+                            <Link href="/login" className="text-primary font-black hover:underline underline-offset-4 cursor-pointer">
+                                Login Here
+                            </Link>
+                        </p>
+                    </div>
                 </div>
             </motion.div>
         </div>
