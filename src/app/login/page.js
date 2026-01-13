@@ -37,8 +37,8 @@ const LoginPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-base-100 p-6 relative overflow-hidden">
             {/* Background Decorative Elements */}
-            <div className="absolute top-[-10%] left-[-5%] w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+            <div className="absolute top-[-10%] left-[-5%] w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -144,7 +144,7 @@ const LoginPage = () => {
 
                     </form>
 
-                    <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-base-300/30 border border-base-content/5 relative z-20">
+                    <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-base-300/30 border border-base-content/5">
                         <p className="text-base-content/40 font-black text-[10px] uppercase tracking-widest mb-4">
                             New to BookWorm?
                         </p>

@@ -49,8 +49,8 @@ const RegisterPage = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-base-100 p-6 relative overflow-hidden">
             {/* Background Decorative Elements */}
-            <div className="absolute top-[-10%] right-[-5%] w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl"></div>
+            <div className="absolute top-[-10%] right-[-5%] w-64 h-64 bg-primary/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute bottom-[-10%] left-[-5%] w-96 h-96 bg-primary/5 rounded-full blur-3xl pointer-events-none"></div>
 
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -185,7 +185,7 @@ const RegisterPage = () => {
 
                     </form>
 
-                    <div className="text-center mt-6 relative z-20">
+                    <div className="text-center mt-6">
                         <p className="text-base-content/60 text-sm font-medium">
                             Already have an account?{" "}
                             <Link href="/login" className="text-primary font-black hover:underline underline-offset-4 cursor-pointer">
