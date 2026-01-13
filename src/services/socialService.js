@@ -17,6 +17,18 @@ const socialService = {
     unfollowUser: async (userId) => {
         const response = await api.post(`/social/unfollow/${userId}`);
         return response.data;
+    },
+
+    // Get users to follow
+    getSuggestedUsers: async () => {
+        const response = await api.get('/social/users-to-follow');
+        return response.data;
+    },
+
+    // Get following list
+    getFollowing: async () => {
+        const response = await api.get('/social/following');
+        return response.data;
     }
 };
 

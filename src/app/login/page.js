@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { LogIn, Mail, Lock, Eye, EyeOff, BookOpen } from "lucide-react";
+import { LogIn, Mail, Lock, Eye, EyeOff, BookOpen, UserPlus, Loader2 } from "lucide-react";
 
 const LoginPage = () => {
     const [email, setEmail] = useState("");
@@ -70,7 +70,7 @@ const LoginPage = () => {
                 <div className="md:w-1/2 p-12 lg:p-16">
                     <div className="mb-10">
                         <h2 className="text-3xl font-black text-neutral mb-2">Member Login</h2>
-                        <p className="text-neutral-content/60 font-medium">Access your shelves and continue reading.</p>
+                        <p className="text-neutral/50 font-bold text-sm">Access your shelves and continue reading.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -118,26 +118,35 @@ const LoginPage = () => {
                                 </button>
                             </div>
                             <label className="label mt-1">
-                                <a href="#" className="label-text-alt link link-primary font-bold">Forgot password?</a>
+                                <a href="#" className="label-text-alt link link-primary font-black hover:text-primary/70 transition-colors">Forgot password?</a>
                             </label>
                         </div>
 
                         <button
                             type="submit"
-                            className={`btn btn-primary w-full h-14 text-lg font-black shadow-lg shadow-primary/20 transition-all group ${isLoading ? 'loading' : ''}`}
+                            className="btn btn-primary w-full h-14 text-lg font-black shadow-lg shadow-primary/20 transition-all group"
                             disabled={isLoading}
                         >
-                            {!isLoading && <LogIn size={20} className="mr-2 group-hover:translate-x-1 transition-transform" />}
-                            Login to Dashboard
+                            {isLoading ? (
+                                <Loader2 className="animate-spin" size={24} />
+                            ) : (
+                                <div className="flex items-center justify-center">
+                                    <LogIn size={20} className="mr-2 group-hover:translate-x-1 transition-transform" />
+                                    <span>Login to Dashboard</span>
+                                </div>
+                            )}
                         </button>
 
-                        <div className="text-center mt-8">
-                            <p className="text-neutral-content/60 font-medium">
-                                Don't have an account?{" "}
-                                <Link href="/register" className="text-primary font-black hover:underline underline-offset-4">
-                                    Join for Free
-                                </Link>
+                        <div className="text-center mt-10 p-8 rounded-[2rem] bg-neutral/5 border border-neutral/10">
+                            <p className="text-neutral/40 font-black text-[10px] uppercase tracking-widest mb-4">
+                                New to BookWorm?
                             </p>
+                            <Link
+                                href="/register"
+                                className="btn btn-primary btn-outline border-2 w-full rounded-xl font-black hover:bg-primary hover:text-white transition-all h-12"
+                            >
+                                <UserPlus size={18} className="mr-2" /> Register Here
+                            </Link>
                         </div>
                     </form>
                 </div>

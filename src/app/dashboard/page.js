@@ -16,23 +16,34 @@ import Image from "next/image";
 const UserDashboard = () => {
     const [stats, setStats] = useState(null);
     const [feed, setFeed] = useState([]);
+    const [feedPage, setFeedPage] = useState(1);
+    const [suggestedUsers, setSuggestedUsers] = useState([]);
+    const [followingList, setFollowingList] = useState([]);
     const [recommendations, setRecommendations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [goalTarget, setGoalTarget] = useState(30);
 
+    const ITEMS_PER_PAGE = 10;
+    const totalPages = Math.ceil(feed.length / ITEMS_PER_PAGE);
+    const currentFeed = feed.slice((feedPage - 1) * ITEMS_PER_PAGE, feedPage * ITEMS_PER_PAGE);
+
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [statsRes, feedRes, recRes] = await Promise.all([
+            const [statsRes, feedRes, recRes, suggestionsRes, followingRes] = await Promise.all([
                 statsService.getUserStats(),
                 socialService.getFeed(),
-                recommendationService.getRecommendations()
+                recommendationService.getRecommendations(),
+                socialService.getSuggestedUsers(),
+                socialService.getFollowing()
             ]);
 
             setStats(statsRes.data.data);
             setFeed(feedRes.data || []);
             setRecommendations(recRes.data || []);
+            setSuggestedUsers(suggestionsRes.data || []);
+            setFollowingList(followingRes.data || []);
 
             if (statsRes.data.data.goal) {
                 setGoalTarget(statsRes.data.data.goal.target);
@@ -63,6 +74,61 @@ const UserDashboard = () => {
             fetchData();
         } catch (error) {
             Swal.fire("Error", "Failed to set goal", "error");
+        }
+    };
+
+    const handleFollow = async (userId) => {
+        try {
+            await socialService.followUser(userId);
+            // Optimistic update
+            setSuggestedUsers(suggestedUsers.filter(u => u._id !== userId));
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Following user!',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Refresh feed to show any historical activity from new user
+            const feedRes = await socialService.getFeed();
+            setFeed(feedRes.data || []);
+
+            // Refresh following list
+            const followingRes = await socialService.getFollowing();
+            setFollowingList(followingRes.data || []);
+
+        } catch (error) {
+            Swal.fire("Error", "Failed to follow user", "error");
+        }
+    };
+
+    const handleUnfollow = async (userId) => {
+        try {
+            await socialService.unfollowUser(userId);
+            // Update lists
+            setFollowingList(followingList.filter(u => u._id !== userId));
+            // Add back to suggestions if appropriate, or just re-fetch
+            const suggestionsRes = await socialService.getSuggestedUsers();
+            setSuggestedUsers(suggestionsRes.data || []);
+
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'success',
+                title: 'Unfollowed user',
+                showConfirmButton: false,
+                timer: 1500
+            });
+
+            // Refresh feed
+            const feedRes = await socialService.getFeed();
+            setFeed(feedRes.data || []);
+
+        } catch (error) {
+            Swal.fire("Error", "Failed to unfollow user", "error");
         }
     };
 
@@ -116,12 +182,12 @@ const UserDashboard = () => {
                                         {stats?.goal ? (
                                             <div className="space-y-2">
                                                 <progress
-                                                    className="progress progress-white w-full h-4 rounded-full"
+                                                    className="progress progress-warning w-full h-4 rounded-full bg-black/20"
                                                     value={stats.goal.current}
                                                     max={stats.goal.target}
                                                 ></progress>
                                                 <div className="flex justify-between text-xs font-bold uppercase tracking-widest opacity-70">
-                                                    <span>0 Books</span>
+                                                    <span>{stats.goal.current} {stats.goal.current === 1 ? 'Book' : 'Books'}</span>
                                                     <span>{Math.round((stats.goal.current / stats.goal.target) * 100)}% Complete</span>
                                                     <span>{stats.goal.target} Books</span>
                                                 </div>
@@ -160,10 +226,77 @@ const UserDashboard = () => {
                                 ))}
                             </div>
 
-                            {/* Two Column Layout: Feed & Recommendations */}
-                            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 mb-12">
-                                {/* Left: Community Feed */}
-                                <div className="xl:col-span-2 space-y-6">
+                            {/* Minimal Personalized Recommendations Section */}
+                            <section className="mb-20">
+                                <div className="flex items-end justify-between mb-10 px-2">
+                                    <div>
+                                        <h2 className="text-xl font-black text-base-content tracking-tight mb-1">Curated For You</h2>
+                                        <div className="h-1 w-12 bg-primary rounded-full"></div>
+                                    </div>
+                                    <Link href="/books" className="text-xs font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
+                                        View Collection
+                                    </Link>
+                                </div>
+
+                                {recommendations.length > 0 ? (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                                        {recommendations.map((book) => (
+                                            <Link
+                                                href={`/books/${book._id}`}
+                                                key={book._id}
+                                                className="group block"
+                                            >
+                                                {/* Professional Minimal Card */}
+                                                <div className="relative aspect-[2/3] rounded-[2rem] overflow-hidden bg-base-200 shadow-sm group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-500">
+                                                    {book.coverImage && (
+                                                        <img
+                                                            src={book.coverImage.startsWith('http') ? book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${book.coverImage}`}
+                                                            alt={book.title}
+                                                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                                                            onError={(e) => {
+                                                                e.target.onerror = null;
+                                                                e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?q=80&w=600&auto=format&fit=crop";
+                                                            }}
+                                                        />
+                                                    )}
+
+                                                    {/* Minimal Overlay info on hover */}
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity p-6 flex flex-col justify-end">
+                                                        <p className="text-[10px] font-black text-white/60 uppercase tracking-widest mb-1">
+                                                            Recommendation
+                                                        </p>
+                                                        <p className="text-xs font-bold text-white leading-tight line-clamp-2">
+                                                            {book.recommendationReason}
+                                                        </p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="mt-4 px-1">
+                                                    <h3 className="font-black text-sm text-base-content leading-tight mb-1 truncate">{book.title}</h3>
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex items-center gap-0.5 text-warning">
+                                                            <Star size={10} fill="currentColor" />
+                                                            <span className="text-[10px] font-black">{book.averageRating?.toFixed(1) || '0.0'}</span>
+                                                        </div>
+                                                        <span className="text-[10px] font-bold text-base-content/30 uppercase tracking-wider">•</span>
+                                                        <span className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider truncate">
+                                                            {book.genre?.name || 'Reading'}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </Link>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border border-base-content/5">
+                                        <p className="text-sm font-bold text-base-content/30 uppercase tracking-[0.2em]">Analyzing reading habits...</p>
+                                    </div>
+                                )}
+                            </section>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+                                {/* Left Column: Community Feed */}
+                                <div className="lg:col-span-2 space-y-6">
                                     <h2 className="text-2xl font-black flex items-center gap-3">
                                         <span className="p-2 bg-secondary/10 text-secondary rounded-xl">
                                             <Users size={24} />
@@ -172,166 +305,237 @@ const UserDashboard = () => {
                                     </h2>
 
                                     {feed.length === 0 ? (
-                                        <div className="bg-base-100 p-12 rounded-[2rem] border border-base-content/5 text-center">
-                                            <p className="text-base-content/50">No recent activity found. Follow users to see their updates!</p>
+                                        <div className="bg-base-100 p-8 rounded-[2rem] border border-base-content/5 text-center space-y-6">
+                                            <div className="p-4 bg-base-200 rounded-full inline-block">
+                                                <Users size={48} className="text-base-content/20" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-black text-base-content">It's quiet here...</h3>
+                                                <p className="text-base-content/50 max-w-xs mx-auto">Follow other readers to see their reviews, progress updates, and reading lists!</p>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="space-y-4">
-                                            {feed.map((item, idx) => (
-                                                <div key={idx} className="bg-base-100 p-6 rounded-[2rem] border border-base-content/5 shadow-sm hover:shadow-md transition-all flex gap-4 md:gap-6 items-start">
-                                                    <div className="avatar">
-                                                        <div className="w-12 h-12 rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
-                                                            <img src={item.user.photo || "https://ui-avatars.com/api/?name=" + item.user.name} alt={item.user.name} />
+                                        <>
+                                            <div className="space-y-4 min-h-[800px]">
+                                                {currentFeed.map((item, idx) => (
+                                                    <div key={idx} className="bg-base-100 p-6 rounded-[2rem] border border-base-content/5 shadow-sm hover:shadow-md transition-all flex gap-4 items-start animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 50}ms` }}>
+                                                        <div className="avatar">
+                                                            <div className="w-12 h-12 rounded-full ring-2 ring-primary/20 ring-offset-2 ring-offset-base-100">
+                                                                <img src={item.user?.photo || "https://ui-avatars.com/api/?name=" + (item.user?.name || "User")} alt={item.user?.name || "User"} />
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <p className="text-sm text-base-content/60 mb-1">
-                                                            <span className="font-bold text-base-content">{item.user.name}</span>
-                                                            <span className="mx-1">•</span>
-                                                            {new Date(item.timestamp).toLocaleDateString()}
-                                                        </p>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-sm text-base-content/60 mb-1">
+                                                                <span className="font-bold text-base-content">{item.user?.name || "Unknown User"}</span>
+                                                                <span className="mx-1">•</span>
+                                                                {new Date(item.timestamp).toLocaleDateString()}
+                                                            </p>
 
-                                                        {item.type === 'review' ? (
-                                                            <div>
-                                                                <div className="font-medium text-lg mb-2 flex flex-wrap items-center">
-                                                                    Rated <span className="font-bold text-primary mx-1">"{item.book.title}"</span>
-                                                                    <div className="inline-flex items-center ml-2 text-warning gap-1 bg-warning/5 px-2 py-0.5 rounded-lg">
-                                                                        <span className="font-bold text-sm">{item.rating}</span> <Star size={12} fill="currentColor" />
+                                                            {item.type === 'review' ? (
+                                                                <div>
+                                                                    <div className="font-medium text-lg mb-2 flex flex-wrap items-center">
+                                                                        Rated <span className="font-bold text-primary mx-1 truncate max-w-[200px]">"{item.book?.title || 'Unknown Book'}"</span>
+                                                                        <div className="inline-flex items-center ml-2 text-warning gap-1 bg-warning/5 px-2 py-0.5 rounded-lg shrink-0">
+                                                                            <span className="font-bold text-sm">{item.rating}</span> <Star size={12} fill="currentColor" />
+                                                                        </div>
                                                                     </div>
                                                                 </div>
-                                                            </div>
-                                                        ) : (
-                                                            <div>
-                                                                <div className="font-medium text-lg mb-2">
-                                                                    {item.shelf === 'Read' ? 'Finished reading' : `Added to ${item.shelf} list`}: <span className="font-bold text-primary">"{item.book.title}"</span>
+                                                            ) : (
+                                                                <div>
+                                                                    <div className="font-medium text-lg mb-2">
+                                                                        {item.shelf === 'Read' ? 'Finished reading' : `Added to ${item.shelf} list`}: <span className="font-bold text-primary truncate max-w-[200px] inline-block align-bottom">"{item.book?.title || 'Unknown Book'}"</span>
+                                                                    </div>
                                                                 </div>
+                                                            )}
+                                                        </div>
+                                                        {item.book?.coverImage && (
+                                                            <div className="hidden sm:block w-12 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
+                                                                <img
+                                                                    src={item.book.coverImage.startsWith('http') ? item.book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${item.book.coverImage}`}
+                                                                    alt={item.book?.title || 'Book cover'}
+                                                                    className="w-full h-full object-cover"
+                                                                    onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?w=200"; }}
+                                                                />
                                                             </div>
                                                         )}
                                                     </div>
-                                                    {item.book.coverImage && (
-                                                        <div className="hidden md:block w-12 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm relative">
-                                                            <img
-                                                                src={`${process.env.NEXT_PUBLIC_API_URL}${item.book.coverImage}`}
-                                                                alt={item.book.title}
-                                                                className="w-full h-full object-cover"
-                                                            />
-                                                        </div>
-                                                    )}
+                                                ))}
+                                            </div>
+
+                                            {/* Pagination Controls */}
+                                            {totalPages > 1 && (
+                                                <div className="flex justify-center items-center gap-4 mt-8 pt-4 border-t border-base-content/5">
+                                                    <button
+                                                        className="btn btn-sm btn-ghost"
+                                                        disabled={feedPage === 1}
+                                                        onClick={() => setFeedPage(prev => Math.max(1, prev - 1))}
+                                                    >
+                                                        Previous
+                                                    </button>
+                                                    <span className="text-sm font-bold opacity-60">Page {feedPage} of {totalPages}</span>
+                                                    <button
+                                                        className="btn btn-sm btn-ghost"
+                                                        disabled={feedPage === totalPages}
+                                                        onClick={() => setFeedPage(prev => Math.min(totalPages, prev + 1))}
+                                                    >
+                                                        Next
+                                                    </button>
                                                 </div>
-                                            ))}
-                                        </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
 
-                                {/* Right: Recommendations */}
-                                <div className="space-y-6">
-                                    <h2 className="text-2xl font-black flex items-center gap-3">
-                                        <span className="p-2 bg-accent/10 text-accent rounded-xl">
-                                            <BookOpen size={24} />
-                                        </span>
-                                        Recommended
-                                    </h2>
+                                {/* Right Column: Following & Who to Follow */}
+                                <div className="space-y-8">
 
-                                    {recommendations.length > 0 ? (
-                                        <div className="space-y-4">
-                                            {recommendations.slice(0, 4).map((book) => (
-                                                <Link href={`/books/${book._id}`} key={book._id} className="group block bg-base-100 p-4 rounded-[2rem] border border-base-content/5 shadow-sm hover:shadow-lg hover:border-accent/20 transition-all">
-                                                    <div className="flex gap-4">
-                                                        <div className="w-16 h-24 rounded-xl overflow-hidden shadow-md flex-shrink-0 bg-base-200">
-                                                            {book.coverImage && (
-                                                                <img
-                                                                    src={`${process.env.NEXT_PUBLIC_API_URL}${book.coverImage}`}
-                                                                    alt={book.title}
-                                                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                                                />
-                                                            )}
-                                                        </div>
-                                                        <div className="flex flex-col justify-between py-1">
-                                                            <div>
-                                                                <h3 className="font-bold text-base line-clamp-2 leading-tight mb-1 group-hover:text-accent transition-colors">{book.title}</h3>
-                                                                <div className="flex items-center gap-1 text-warning text-xs font-bold">
-                                                                    <span>{book.averageRating.toFixed(1)}</span> <Star size={10} fill="currentColor" />
+                                    {/* Following Section */}
+                                    <div>
+                                        <h2 className="text-xl font-black flex items-center gap-2 text-base-content/80 mb-4">
+                                            Following <span className="opacity-40 text-sm font-bold">({followingList.length})</span>
+                                        </h2>
+
+                                        {followingList.length > 0 ? (
+                                            <div className="bg-base-100 p-2 rounded-[2rem] border border-base-content/5 shadow-sm">
+                                                <div className="max-h-[300px] overflow-y-auto custom-scrollbar p-2 space-y-2">
+                                                    {followingList.map((user) => (
+                                                        <div key={user._id} className="flex items-center justify-between gap-3 p-2 hover:bg-base-200/50 rounded-2xl transition-colors group">
+                                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                                <div className="avatar">
+                                                                    <div className="w-10 h-10 rounded-full ring-1 ring-base-content/10">
+                                                                        <img src={user.photo || "https://ui-avatars.com/api/?name=" + user.name} alt={user.name} />
+                                                                    </div>
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="font-bold text-sm truncate text-base-content">{user.name}</p>
                                                                 </div>
                                                             </div>
-                                                            <p className="text-[10px] uppercase font-bold text-base-content/40 mt-2 line-clamp-1">
-                                                                {book.recommendationReason.replace('Based on your interest in', 'Because you like')}
-                                                            </p>
+                                                            <button
+                                                                onClick={() => handleUnfollow(user._id)}
+                                                                className="btn btn-xs bg-base-200 hover:bg-error/10 hover:text-error border-none text-base-content/60"
+                                                                title="Unfollow"
+                                                            >
+                                                                Unfollow
+                                                            </button>
                                                         </div>
-                                                    </div>
-                                                </Link>
-                                            ))}
-                                            <Link href="/books" className="btn btn-ghost btn-block rounded-xl font-bold flex items-center gap-2 group">
-                                                Discover More <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
-                                            </Link>
-                                        </div>
-                                    ) : (
-                                        <div className="bg-gradient-to-b from-primary/5 to-transparent p-8 rounded-[2.5rem] border border-primary/10 text-center space-y-4">
-                                            <div className="mx-auto w-16 h-16 bg-white/50 backdrop-blur-sm rounded-2xl flex items-center justify-center text-primary mb-4 shadow-sm">
-                                                <Clock size={32} />
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <h3 className="font-bold text-lg">AI Curator</h3>
-                                            <p className="text-sm text-base-content/60 leading-relaxed">
-                                                Our AI is analyzing your reading patterns to suggest your next favorite book.
-                                            </p>
-                                            <Link href="/books" className="btn btn-outline btn-primary rounded-xl btn-sm font-bold mt-4">
-                                                Browse All Books
-                                            </Link>
+                                        ) : (
+                                            <div className="p-6 bg-base-200/30 rounded-[2rem] border border-base-content/5 text-center dashed-border">
+                                                <p className="text-xs text-base-content/40 font-bold">You aren't following anyone yet.</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Who to Follow */}
+                                    <div>
+                                        <h2 className="text-xl font-black flex items-center gap-2 text-base-content/80 mb-4">
+                                            Discover Readers
+                                        </h2>
+
+                                        <div className="bg-base-100 p-6 rounded-[2rem] border border-base-content/5 shadow-sm">
+                                            {suggestedUsers.length > 0 ? (
+                                                <div className="space-y-6">
+                                                    {suggestedUsers.map((user) => (
+                                                        <div key={user._id} className="flex items-center justify-between gap-3">
+                                                            <div className="flex items-center gap-3 overflow-hidden">
+                                                                <div className="avatar placeholder">
+                                                                    <div className="bg-neutral text-neutral-content rounded-full w-10">
+                                                                        {user.photo ? (
+                                                                            <img src={user.photo} alt={user.name} />
+                                                                        ) : (
+                                                                            <span className="text-xs">{user.name.substring(0, 2).toUpperCase()}</span>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                                <div className="min-w-0">
+                                                                    <p className="font-bold text-sm truncate text-base-content">{user.name}</p>
+                                                                    <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider">Reader</p>
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => handleFollow(user._id)}
+                                                                className="btn btn-xs btn-primary rounded-full px-4 font-bold"
+                                                            >
+                                                                Follow
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-8">
+                                                    <p className="text-sm text-base-content/40 font-medium">No new suggestions.</p>
+                                                    <p className="text-xs text-base-content/30 mt-1">You're following everyone!</p>
+                                                </div>
+                                            )}
                                         </div>
-                                    )}
+
+                                        {/* Mini Footer / Info */}
+                                        <div className="bg-primary/5 p-6 rounded-[2rem] border border-primary/10 mt-6">
+                                            <h3 className="font-black text-primary text-sm mb-2">Did you know?</h3>
+                                            <p className="text-xs text-base-content/60 leading-relaxed">
+                                                Following others helps you discover new books. Their activities will appear in your feed instantly!
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </>
-                    )}
+                    )
+                    }
 
                     {/* Goal Modal */}
-                    {isGoalModalOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                            <div className="bg-base-100 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl animate-in zoom-in-95">
-                                <h3 className="text-2xl font-black text-base-content mb-2">Set Annual Goal</h3>
-                                <p className="text-base-content/60 text-sm mb-6">How many books do you want to read in {new Date().getFullYear()}?</p>
+                    {
+                        isGoalModalOpen && (
+                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                                <div className="bg-base-100 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl animate-in zoom-in-95">
+                                    <h3 className="text-2xl font-black text-base-content mb-2">Set Annual Goal</h3>
+                                    <p className="text-base-content/60 text-sm mb-6">How many books do you want to read in {new Date().getFullYear()}?</p>
 
-                                <form onSubmit={handleSetGoal}>
-                                    <div className="flex items-center gap-4 mb-8">
-                                        <button
-                                            type="button"
-                                            className="btn btn-circle btn-ghost bg-base-200"
-                                            onClick={() => setGoalTarget(Math.max(1, goalTarget - 1))}
-                                        >
-                                            -
-                                        </button>
-                                        <div className="flex-1 text-center">
-                                            <span className="text-4xl font-black text-primary">{goalTarget}</span>
-                                            <span className="block text-xs font-bold uppercase text-base-content/30 mt-1">Books</span>
+                                    <form onSubmit={handleSetGoal}>
+                                        <div className="flex items-center gap-4 mb-8">
+                                            <button
+                                                type="button"
+                                                className="btn btn-circle btn-ghost bg-base-200"
+                                                onClick={() => setGoalTarget(Math.max(1, goalTarget - 1))}
+                                            >
+                                                -
+                                            </button>
+                                            <div className="flex-1 text-center">
+                                                <span className="text-4xl font-black text-primary">{goalTarget}</span>
+                                                <span className="block text-xs font-bold uppercase text-base-content/30 mt-1">Books</span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="btn btn-circle btn-ghost bg-base-200"
+                                                onClick={() => setGoalTarget(goalTarget + 1)}
+                                            >
+                                                +
+                                            </button>
                                         </div>
-                                        <button
-                                            type="button"
-                                            className="btn btn-circle btn-ghost bg-base-200"
-                                            onClick={() => setGoalTarget(goalTarget + 1)}
-                                        >
-                                            +
-                                        </button>
-                                    </div>
 
-                                    <div className="space-y-3">
-                                        <button type="submit" className="btn btn-primary w-full rounded-xl font-bold text-lg shadow-lg shadow-primary/20">
-                                            Save Goal
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-ghost w-full rounded-xl font-bold"
-                                            onClick={() => setIsGoalModalOpen(false)}
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </form>
+                                        <div className="space-y-3">
+                                            <button type="submit" className="btn btn-primary w-full rounded-xl font-bold text-lg shadow-lg shadow-primary/20">
+                                                Save Goal
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-ghost w-full rounded-xl font-bold"
+                                                onClick={() => setIsGoalModalOpen(false)}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
                             </div>
-                        </div>
-                    )}
-                </main>
+                        )
+                    }
+                </main >
                 <Footer />
-            </div>
-        </ProtectedRoute>
+            </div >
+        </ProtectedRoute >
     );
 };
 

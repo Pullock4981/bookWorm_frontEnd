@@ -5,7 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { User, Mail, Lock, UserPlus, Image as ImageIcon, BookOpen } from "lucide-react";
+import { User, Mail, Lock, UserPlus, Image as ImageIcon, BookOpen, Loader2 } from "lucide-react";
 
 const RegisterPage = () => {
     const [formData, setFormData] = useState({
@@ -164,11 +164,17 @@ const RegisterPage = () => {
                         <div className="pt-4">
                             <button
                                 type="submit"
-                                className={`btn btn-primary w-full h-12 text-md font-black shadow-xl shadow-primary/10 transition-all ${isLoading ? 'loading' : ''}`}
+                                className="btn btn-primary w-full h-12 text-md font-black shadow-xl shadow-primary/10 transition-all flex items-center justify-center"
                                 disabled={isLoading}
                             >
-                                <UserPlus size={18} className="mr-2" />
-                                Create My Account
+                                {isLoading ? (
+                                    <Loader2 className="animate-spin" size={20} />
+                                ) : (
+                                    <>
+                                        <UserPlus size={18} className="mr-2" />
+                                        Create My Account
+                                    </>
+                                )}
                             </button>
                         </div>
 
