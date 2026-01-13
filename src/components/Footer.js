@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { BookOpen, Github, Twitter, Instagram, Mail, ChevronRight, Heart } from 'lucide-react';
+import { BookOpen, Github, Facebook, Linkedin, Mail, ChevronRight } from 'lucide-react';
 
 const Footer = () => {
     const currentYear = new Date().getFullYear();
@@ -12,7 +12,7 @@ const Footer = () => {
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[100px] pointer-events-none"></div>
 
             <div className="max-w-screen-2xl mx-auto px-8 pt-16 pb-10 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-12 mb-16">
                     {/* Branding Section */}
                     <div className="space-y-6">
                         <Link href="/" className="flex items-center gap-2 group w-fit">
@@ -25,47 +25,27 @@ const Footer = () => {
                             Your ultimate sanctuary for digital reading. Organize your library, track your progress, and discover your next favorite journey.
                         </p>
                         <div className="flex items-center gap-4">
-                            <a href="#" className="p-3 bg-base-300 hover:bg-primary hover:text-primary-content rounded-xl transition-all duration-300 text-base-content/80">
-                                <Twitter size={18} />
-                            </a>
-                            <a href="#" className="p-3 bg-base-300 hover:bg-primary hover:text-primary-content rounded-xl transition-all duration-300 text-base-content/80">
+                            <a href="https://github.com/Pullock4981" target="_blank" rel="noopener noreferrer" className="p-3 bg-base-300 hover:bg-primary hover:text-primary-content rounded-xl transition-all duration-300 text-base-content/80">
                                 <Github size={18} />
                             </a>
-                            <a href="#" className="p-3 bg-base-300 hover:bg-primary hover:text-primary-content rounded-xl transition-all duration-300 text-base-content/80">
-                                <Instagram size={18} />
+                            <a href="https://www.facebook.com/mahmudashik.pullock" target="_blank" rel="noopener noreferrer" className="p-3 bg-base-300 hover:bg-primary hover:text-primary-content rounded-xl transition-all duration-300 text-base-content/80">
+                                <Facebook size={18} />
+                            </a>
+                            <a href="https://www.linkedin.com/in/ashikpullock/" target="_blank" rel="noopener noreferrer" className="p-3 bg-base-300 hover:bg-primary hover:text-primary-content rounded-xl transition-all duration-300 text-base-content/80">
+                                <Linkedin size={18} />
                             </a>
                         </div>
                     </div>
 
                     {/* Quick Links */}
                     <div className="space-y-6">
-                        <h4 className="text-sm font-black uppercase tracking-[0.2em] text-primary">Library</h4>
+                        <h4 className="text-sm font-black uppercase tracking-[0.2em] text-primary">Platform</h4>
                         <ul className="space-y-4">
                             {[
                                 { name: 'Browse Books', href: '/books' },
-                                { name: 'My Shelves', href: '/library' },
-                                { name: 'Personal Stats', href: '/dashboard' },
-                                { name: 'New Arrivals', href: '/books?sort=newest' }
-                            ].map((item) => (
-                                <li key={item.name}>
-                                    <Link href={item.href} className="flex items-center gap-2 text-base-content/60 hover:text-primary transition-colors group w-fit">
-                                        <ChevronRight size={14} className="opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-primary" />
-                                        <span className="font-bold">{item.name}</span>
-                                    </Link>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Community Section */}
-                    <div className="space-y-6">
-                        <h4 className="text-sm font-black uppercase tracking-[0.2em] text-primary">Explore</h4>
-                        <ul className="space-y-4">
-                            {[
-                                { name: 'Social Feed', href: '/social' },
-                                { name: 'Reading Goals', href: '/dashboard' },
-                                { name: 'Expert Guides', href: '/tutorials' },
-                                { name: 'Admin Panel', href: '/admin/dashboard' }
+                                { name: 'My Library', href: '/library' },
+                                { name: 'Dashboard', href: '/dashboard' },
+                                { name: 'Social Feed', href: '/dashboard' } // Feed is on dashboard
                             ].map((item) => (
                                 <li key={item.name}>
                                     <Link href={item.href} className="flex items-center gap-2 text-base-content/60 hover:text-primary transition-colors group w-fit">
@@ -83,7 +63,7 @@ const Footer = () => {
                         <p className="text-base-content/70 font-medium text-sm">
                             Get weekly book recommendations and reading tips directly in your inbox.
                         </p>
-                        <div className="relative group max-w-xs">
+                        <div className="relative group w-full">
                             <input
                                 type="email"
                                 placeholder="Your email..."
@@ -102,14 +82,10 @@ const Footer = () => {
                         <span>© {currentYear} BookWorm. All rights reserved.</span>
                     </div>
                     <div className="flex items-center gap-1">
-                        <span>Made with</span>
-                        <Heart size={14} className="text-error fill-error animate-pulse" />
-                        <span>for Book Lovers</span>
-                    </div>
-                    <div className="flex items-center gap-8 uppercase tracking-widest text-[10px]">
-                        <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-                        <a href="#" className="hover:text-primary transition-colors">Terms</a>
-                        <a href="#" className="hover:text-primary transition-colors">Cookies</a>
+                        <span>Designed by</span>
+                        <a href="https://ashikmahudpullock.netlify.app/" target="_blank" rel="noopener noreferrer" className="text-primary font-black hover:underline transition-all">
+                            Syed Ashik Mahmud Pullock
+                        </a>
                     </div>
                 </div>
             </div>

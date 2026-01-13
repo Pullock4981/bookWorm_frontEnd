@@ -151,24 +151,24 @@ const ManageGenres = () => {
                                 {filteredGenres.map((genre) => (
                                     <div
                                         key={genre._id}
-                                        className="group relative bg-base-100/50 hover:bg-white border border-base-content/5 hover:border-primary/20 
-                                        p-6 rounded-[2rem] transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+                                        className="group relative bg-base-200 hover:bg-base-300 border border-base-content/10 hover:border-primary/30 
+                                        p-6 rounded-[2rem] transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:-translate-y-1"
                                     >
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="p-3 bg-base-200/50 group-hover:bg-primary/10 rounded-2xl transition-colors">
-                                                <Tags size={24} className="text-base-content/40 group-hover:text-primary transition-colors" />
+                                            <div className="p-3 bg-base-300 group-hover:bg-primary/20 rounded-2xl transition-colors">
+                                                <Tags size={24} className="text-base-content/60 group-hover:text-primary transition-colors" />
                                             </div>
                                             <div className="flex gap-2 opacity-100">
                                                 {/* Always visible */}
                                                 <button
                                                     onClick={() => handleOpenModal(genre)}
-                                                    className="btn btn-ghost btn-xs btn-circle hover:bg-primary/10 hover:text-primary"
+                                                    className="btn btn-ghost btn-xs btn-circle hover:bg-primary/10 hover:text-primary text-base-content/60"
                                                 >
                                                     <Pencil size={14} />
                                                 </button>
                                                 <button
                                                     onClick={() => handleDelete(genre._id)}
-                                                    className="btn btn-ghost btn-xs btn-circle hover:bg-error/10 hover:text-error"
+                                                    className="btn btn-ghost btn-xs btn-circle hover:bg-error/10 hover:text-error text-base-content/60"
                                                 >
                                                     <Trash2 size={14} />
                                                 </button>
@@ -178,7 +178,7 @@ const ManageGenres = () => {
                                         <h3 className="text-lg font-black text-base-content tracking-tight mb-1 truncate">
                                             {genre.name}
                                         </h3>
-                                        <p className="text-[10px] font-bold text-base-content/30 uppercase tracking-widest">
+                                        <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-widest">
                                             ID: {genre._id.slice(-6)}
                                         </p>
                                     </div>

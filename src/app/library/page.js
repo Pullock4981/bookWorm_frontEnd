@@ -124,14 +124,17 @@ const MyLibrary = () => {
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">My Library</h1>
                             <p className="text-base-content/50 text-sm font-medium">Your personal collection and reading progress.</p>
                         </div>
-                        <div className="flex bg-base-200 shadow-sm p-1.5 rounded-2xl border border-primary/10">
+                        <div className="flex bg-base-200 shadow-sm p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-primary/10 w-full md:w-auto">
                             {shelves.map(shelf => (
                                 <button
                                     key={shelf}
                                     onClick={() => setActiveShelf(shelf)}
-                                    className={`px-6 py-3 rounded-xl font-bold transition-all duration-300 text-sm ${activeShelf === shelf ? 'bg-primary text-primary-content shadow-lg' : 'hover:bg-primary/5 text-base-content/50'}`}
+                                    className={`flex-1 md:flex-none px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all duration-300 text-xs md:text-sm whitespace-nowrap ${activeShelf === shelf ? 'bg-primary text-primary-content shadow-lg' : 'hover:bg-primary/5 text-base-content/50'}`}
                                 >
-                                    {shelf}
+                                    <span className="hidden md:inline">{shelf}</span>
+                                    <span className="md:hidden">
+                                        {shelf === 'Currently Reading' ? 'Reading' : shelf === 'Want to Read' ? 'Want' : 'Read'}
+                                    </span>
                                 </button>
                             ))}
                         </div>

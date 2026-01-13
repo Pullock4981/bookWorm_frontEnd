@@ -250,15 +250,15 @@ const UserDashboard = () => {
                                 </div>
 
                                 {recommendations.length > 0 ? (
-                                    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-8 gap-4">
-                                        {recommendations.slice(0, 8).map((book) => (
+                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                                        {recommendations.slice(0, 6).map((book) => (
                                             <Link
                                                 href={`/books/${book._id}`}
                                                 key={book._id}
                                                 className="group block"
                                             >
                                                 {/* Professional Minimal Card */}
-                                                <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-base-200 shadow-sm group-hover:shadow-lg group-hover:-translate-y-1 transition-all duration-300">
+                                                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-base-200 shadow-md group-hover:shadow-2xl group-hover:-translate-y-2 transition-all duration-300">
                                                     {book.coverImage && (
                                                         <img
                                                             src={book.coverImage.startsWith('http') ? book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${book.coverImage}`}

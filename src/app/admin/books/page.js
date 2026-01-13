@@ -259,7 +259,7 @@ const ManageBooks = () => {
                                                     <td><span className="badge badge-primary badge-outline font-black text-[10px] py-3">{book.genre?.name || 'Uncategorized'}</span></td>
                                                     <td>
                                                         <div className="flex flex-col gap-1">
-                                                            <span className="text-xs font-bold opacity-60">Avg: ⭐ {book.averageRating || 0}</span>
+                                                            <span className="text-xs font-bold opacity-60">Avg: ⭐ {(book.averageRating || 0).toFixed(1)}</span>
                                                             <span className="text-[10px] opacity-40">{book.totalReviews || 0} reviews</span>
                                                         </div>
                                                     </td>
@@ -305,7 +305,7 @@ const ManageBooks = () => {
                                                     <p className="text-sm text-base-content/60 font-bold mb-3">by {book.author}</p>
 
                                                     <div className="flex items-center gap-3 text-xs font-bold bg-base-200/50 p-2 rounded-lg w-fit">
-                                                        <span className="flex items-center gap-1 text-warning"><span className="text-sm">★</span> {book.averageRating || 0}</span>
+                                                        <span className="flex items-center gap-1 text-warning"><span className="text-sm">★</span> {(book.averageRating || 0).toFixed(1)}</span>
                                                         <span className="w-1 h-1 rounded-full bg-base-content/20"></span>
                                                         <span className="opacity-60">{book.totalReviews || 0} reviews</span>
                                                     </div>

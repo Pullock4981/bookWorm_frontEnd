@@ -210,15 +210,18 @@ const BookDetails = () => {
 
                                 {/* Book Info Block */}
                                 <div className="flex-1 space-y-6">
-                                    <div className="flex flex-wrap items-center gap-3">
-                                        <span className="px-3 py-1 rounded-lg bg-primary/10 text-primary font-bold text-[10px] uppercase tracking-[0.2em]">
+                                    <div className="flex flex-wrap items-center gap-2 md:gap-3">
+                                        <span className="px-2 md:px-3 py-1 rounded-lg bg-primary/10 text-primary font-bold text-[9px] md:text-[10px] uppercase tracking-[0.15em] md:tracking-[0.2em]">
                                             {book.genre?.name || "Uncategorized"}
                                         </span>
                                         <div className="h-1 w-1 rounded-full bg-base-content/20"></div>
-                                        <div className="flex items-center gap-1.5 text-warning font-black text-xs">
-                                            <Star size={14} fill="currentColor" />
-                                            <span>{book.averageRating?.toFixed(1) || '0.0'}</span>
-                                            <span className="text-base-content/30 font-bold ml-1">({book.totalReviews || 0} reviews)</span>
+                                        <div className="flex items-center gap-1 md:gap-1.5 text-warning font-black text-xs">
+                                            <Star size={12} className="md:hidden" fill="currentColor" />
+                                            <Star size={14} className="hidden md:block" fill="currentColor" />
+                                            <span>{(book.averageRating || 0).toFixed(1)}</span>
+                                            <span className="text-base-content/30 font-bold ml-0.5 md:ml-1 text-[10px] md:text-xs">
+                                                ({book.totalReviews || 0}<span className="hidden sm:inline"> reviews</span>)
+                                            </span>
                                         </div>
                                     </div>
 
