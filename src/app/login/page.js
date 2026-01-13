@@ -43,7 +43,7 @@ const LoginPage = () => {
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-primary/5"
+                className="w-full max-w-5xl bg-base-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row border border-primary/10"
             >
                 {/* Left Side: Illustration & Branding */}
                 <div className="md:w-1/2 bg-primary p-12 text-white flex flex-col justify-center items-center relative overflow-hidden">
@@ -67,19 +67,19 @@ const LoginPage = () => {
                 </div>
 
                 {/* Right Side: Form */}
-                <div className="md:w-1/2 p-8 md:p-12 lg:p-16">
+                <div className="md:w-1/2 p-8 md:p-12 lg:p-16 bg-base-200">
                     <div className="mb-6 md:mb-10">
-                        <h2 className="text-3xl font-black text-neutral mb-2">Member Login</h2>
-                        <p className="text-neutral/50 font-bold text-sm">Access your shelves and continue reading.</p>
+                        <h2 className="text-3xl font-black text-base-content mb-2">Member Login</h2>
+                        <p className="text-base-content/50 font-bold text-sm">Access your shelves and continue reading.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
                         <div className="form-control">
                             <label className="label">
-                                <span className="label-text font-bold text-neutral">Email Address</span>
+                                <span className="label-text font-bold text-base-content/70">Email Address</span>
                             </label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral/30 group-focus-within:text-primary">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/30 group-focus-within:text-primary">
                                     <Mail size={20} />
                                 </div>
                                 <input
@@ -95,10 +95,10 @@ const LoginPage = () => {
 
                         <div className="form-control">
                             <label className="label">
-                                <span className="label-text font-bold text-neutral">Password</span>
+                                <span className="label-text font-bold text-base-content/70">Password</span>
                             </label>
                             <div className="relative group">
-                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral/30 group-focus-within:text-primary">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/30 group-focus-within:text-primary">
                                     <Lock size={20} />
                                 </div>
                                 <input
@@ -112,7 +112,7 @@ const LoginPage = () => {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-neutral/30 hover:text-primary"
+                                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-base-content/30 hover:text-primary"
                                 >
                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                                 </button>
@@ -139,8 +139,8 @@ const LoginPage = () => {
 
                     </form>
 
-                    <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-neutral/5 border border-neutral/10 relative z-20">
-                        <p className="text-neutral/40 font-black text-[10px] uppercase tracking-widest mb-4">
+                    <div className="text-center mt-8 md:mt-10 p-6 md:p-8 rounded-[2rem] bg-base-300/30 border border-base-content/5 relative z-20">
+                        <p className="text-base-content/40 font-black text-[10px] uppercase tracking-widest mb-4">
                             New to BookWorm?
                         </p>
                         <Link

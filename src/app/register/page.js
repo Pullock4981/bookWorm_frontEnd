@@ -55,7 +55,7 @@ const RegisterPage = () => {
             <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row-reverse border border-primary/5"
+                className="w-full max-w-5xl bg-base-200 rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row-reverse border border-primary/10"
             >
                 {/* Side Illustration */}
                 <div className="md:w-1/2 bg-neutral p-12 text-white flex flex-col justify-center items-center relative overflow-hidden">
@@ -80,21 +80,21 @@ const RegisterPage = () => {
                 </div>
 
                 {/* Form Side */}
-                <div className="md:w-1/2 p-6 md:p-10 lg:p-14">
+                <div className="md:w-1/2 p-6 md:p-10 lg:p-14 bg-base-200">
                     <div className="mb-8">
                         <Link href="/login" className="btn btn-ghost btn-sm text-primary mb-4 p-0 hover:bg-transparent">
                             ← Back to Login
                         </Link>
-                        <h2 className="text-3xl font-black text-neutral mb-2">Create Account</h2>
-                        <p className="text-neutral-content/60 font-medium italic">Join the BookWorm community today.</p>
+                        <h2 className="text-3xl font-black text-base-content mb-2">Create Account</h2>
+                        <p className="text-base-content/60 font-medium italic">Join the BookWorm community today.</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-2 md:space-y-4">
                         <div className="grid grid-cols-1 gap-4">
                             <div className="form-control">
-                                <label className="label py-1"><span className="label-text font-bold">Full Name</span></label>
+                                <label className="label py-1"><span className="label-text font-bold text-base-content/70">Full Name</span></label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral/30 group-focus-within:text-primary">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/30 group-focus-within:text-primary">
                                         <User size={18} />
                                     </div>
                                     <input
@@ -109,9 +109,9 @@ const RegisterPage = () => {
                             </div>
 
                             <div className="form-control">
-                                <label className="label py-1"><span className="label-text font-bold">Email Address</span></label>
+                                <label className="label py-1"><span className="label-text font-bold text-base-content/70">Email Address</span></label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral/30 group-focus-within:text-primary">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/30 group-focus-within:text-primary">
                                         <Mail size={18} />
                                     </div>
                                     <input
@@ -126,9 +126,9 @@ const RegisterPage = () => {
                             </div>
 
                             <div className="form-control">
-                                <label className="label py-1"><span className="label-text font-bold">Password</span></label>
+                                <label className="label py-1"><span className="label-text font-bold text-base-content/70">Password</span></label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral/30 group-focus-within:text-primary">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/30 group-focus-within:text-primary">
                                         <Lock size={18} />
                                     </div>
                                     <input
@@ -145,10 +145,10 @@ const RegisterPage = () => {
 
                             <div className="form-control">
                                 <label className="label py-1">
-                                    <span className="label-text font-bold">Profile Photo <span className="text-[10px] opacity-40 uppercase ml-2">(Optional)</span></span>
+                                    <span className="label-text font-bold text-base-content/70">Profile Photo <span className="text-[10px] opacity-40 uppercase ml-2">(Optional)</span></span>
                                 </label>
                                 <div className="relative group">
-                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral/30 group-focus-within:text-primary">
+                                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-base-content/30 group-focus-within:text-primary">
                                         <ImageIcon size={18} />
                                     </div>
                                     <input
@@ -181,7 +181,7 @@ const RegisterPage = () => {
                     </form>
 
                     <div className="text-center mt-6 relative z-20">
-                        <p className="text-neutral-content/60 text-sm font-medium">
+                        <p className="text-base-content/60 text-sm font-medium">
                             Already have an account?{" "}
                             <Link href="/login" className="text-primary font-black hover:underline underline-offset-4 cursor-pointer">
                                 Login Here
