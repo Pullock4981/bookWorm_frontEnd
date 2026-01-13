@@ -179,7 +179,7 @@ const ManageBooks = () => {
             <AdminLayout>
                 <div className="p-6 md:p-12 min-h-screen">
                     {/* Header Section */}
-                    <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Inventory</h1>
                             <p className="text-base-content/50 text-sm font-medium">Manage and organize the entire book catalog.</p>

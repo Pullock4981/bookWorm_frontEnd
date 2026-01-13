@@ -64,7 +64,7 @@ const ManageUsers = () => {
             <AdminLayout>
                 <div className="p-6 md:p-12 min-h-screen">
                     {/* Header Section */}
-                    <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">User Base</h1>
                             <p className="text-base-content/50 text-sm font-medium">Manage permissions and monitor community growth.</p>
@@ -84,57 +84,115 @@ const ManageUsers = () => {
                                 <p className="text-base-content/40 font-bold">No users found.</p>
                             </div>
                         ) : (
-                            <div className="overflow-x-auto">
-                                <table className="table table-lg w-full">
-                                    <thead className="bg-primary/5 border-b border-primary/10">
-                                        <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
-                                            <th className="py-6 px-10">User</th>
-                                            <th>Email</th>
-                                            <th>Role</th>
-                                            <th>Joined</th>
-                                            <th className="text-right px-10">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {users.map((user) => (
-                                            <tr key={user._id} className="border-b border-base-content/5 hover:bg-white/5 transition-colors">
-                                                <td className="py-6 px-10">
-                                                    <div className="flex items-center gap-4">
-                                                        <div className="avatar placeholder">
-                                                            <div className="bg-neutral text-neutral-content rounded-full w-10">
-                                                                <span className="text-xs font-bold">{user.name[0]}</span>
+                            <div className="w-full">
+                                {/* Desktop View - Table */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="table table-lg w-full">
+                                        <thead className="bg-primary/5 border-b border-primary/10">
+                                            <tr className="text-[10px] font-black uppercase tracking-[0.2em] text-primary">
+                                                <th className="py-6 px-10">User</th>
+                                                <th>Email</th>
+                                                <th>Current Role</th>
+                                                <th>Update Role</th>
+                                                <th className="text-right px-10">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {users.map((user) => (
+                                                <tr key={user._id} className="border-b border-base-content/5 hover:bg-white/5 transition-colors">
+                                                    <td className="py-6 px-10">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="avatar">
+                                                                <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                                                    {user.photo ? (
+                                                                        <img src={user.photo} alt={user.name} />
+                                                                    ) : (
+                                                                        <img src={`https://ui-avatars.com/api/?name=${user.name}&background=random`} alt={user.name} />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold">{user.name}</div>
+                                                                <div className="text-[10px] opacity-40 font-bold uppercase tracking-widest block md:hidden">
+                                                                    Joined: {new Date(user.createdAt).toLocaleDateString()}
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                        <div className="font-bold">{user.name}</div>
+                                                    </td>
+                                                    <td className="font-medium opacity-70">{user.email}</td>
+                                                    <td>
+                                                        <div className={`badge font-bold ${user.role === 'Admin' ? 'badge-primary' : 'badge-ghost border-base-content/10'}`}>
+                                                            {user.role}
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <select
+                                                            className="select select-sm select-bordered w-full max-w-xs font-bold rounded-lg focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                                                            value={user.role}
+                                                            onChange={(e) => handleRoleUpdate(user, e.target.value)}
+                                                        >
+                                                            <option value="User">User</option>
+                                                            <option value="Admin">Admin</option>
+                                                        </select>
+                                                    </td>
+                                                    <td className="text-right px-10">
+                                                        <button
+                                                            onClick={() => handleDelete(user._id)}
+                                                            className="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
+                                                        >
+                                                            <Trash2 size={18} />
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                {/* Mobile View - Cards */}
+                                <div className="md:hidden grid grid-cols-1 gap-4 p-4">
+                                    {users.map((user) => (
+                                        <div key={user._id} className="bg-base-100 p-6 rounded-[1.5rem] border border-base-content/5 shadow-sm space-y-4">
+                                            <div className="flex justify-between items-start">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="avatar">
+                                                        <div className="w-10 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
+                                                            {user.photo ? (
+                                                                <img src={user.photo} alt={user.name} />
+                                                            ) : (
+                                                                <img src={`https://ui-avatars.com/api/?name=${user.name}&background=random`} alt={user.name} />
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                </td>
-                                                <td className="font-medium opacity-70">{user.email}</td>
-                                                <td>
-                                                    <select
-                                                        className={`select select-sm select-bordered w-full max-w-xs font-bold rounded-lg ${user.role === 'Admin' ? 'text-primary border-primary/30 bg-primary/5' : ''}`}
-                                                        value={user.role}
-                                                        onChange={(e) => handleRoleUpdate(user, e.target.value)}
-                                                    >
-                                                        <option value="User">User</option>
-                                                        <option value="Admin">Admin</option>
-                                                    </select>
-                                                </td>
-                                                <td className="text-xs font-bold opacity-50 uppercase tracking-widest">
-                                                    {new Date(user.createdAt).toLocaleDateString()}
-                                                </td>
-                                                <td className="text-right px-10">
-                                                    <button
-                                                        onClick={() => handleDelete(user._id)}
-                                                        className="btn btn-ghost btn-sm btn-circle text-error hover:bg-error/10"
-                                                        disabled={user.role === 'Admin'} // Basic protection against deleting own admin account if needed, better handled by comparing IDs
-                                                    >
-                                                        <Trash2 size={18} />
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                                                    <div>
+                                                        <div className="font-bold text-lg leading-tight">{user.name}</div>
+                                                        <div className="text-xs font-medium opacity-50">{user.email}</div>
+                                                    </div>
+                                                </div>
+                                                <div className={`badge font-bold ${user.role === 'Admin' ? 'badge-primary' : 'badge-ghost border-base-content/10'}`}>
+                                                    {user.role}
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 pt-2 border-t border-base-content/5">
+                                                <select
+                                                    className="select select-sm select-bordered flex-grow font-bold rounded-xl focus:border-primary/50 focus:ring-1 focus:ring-primary/20"
+                                                    value={user.role}
+                                                    onChange={(e) => handleRoleUpdate(user, e.target.value)}
+                                                >
+                                                    <option value="User">User</option>
+                                                    <option value="Admin">Admin</option>
+                                                </select>
+                                                <button
+                                                    onClick={() => handleDelete(user._id)}
+                                                    className="btn btn-sm btn-square btn-ghost text-error bg-error/10 hover:bg-error/20 rounded-xl"
+                                                >
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>

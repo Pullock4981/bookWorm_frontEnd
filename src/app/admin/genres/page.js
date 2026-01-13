@@ -107,7 +107,7 @@ const ManageGenres = () => {
             <AdminLayout>
                 <div className="p-6 md:p-12 min-h-screen">
                     {/* Header Section */}
-                    <header className="mb-8 flex flex-col md:flex-row justify-between items-end gap-6">
+                    <header className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">Manage Genres</h1>
                             <p className="text-base-content/50 text-sm font-medium">Organize your library categories</p>
@@ -147,7 +147,7 @@ const ManageGenres = () => {
                                 <h3 className="text-lg font-black text-base-content/40 uppercase tracking-widest">No genres found</h3>
                             </div>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                                 {filteredGenres.map((genre) => (
                                     <div
                                         key={genre._id}
@@ -158,7 +158,8 @@ const ManageGenres = () => {
                                             <div className="p-3 bg-base-200/50 group-hover:bg-primary/10 rounded-2xl transition-colors">
                                                 <Tags size={24} className="text-base-content/40 group-hover:text-primary transition-colors" />
                                             </div>
-                                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-2 opacity-100">
+                                                {/* Always visible */}
                                                 <button
                                                     onClick={() => handleOpenModal(genre)}
                                                     className="btn btn-ghost btn-xs btn-circle hover:bg-primary/10 hover:text-primary"
@@ -174,7 +175,7 @@ const ManageGenres = () => {
                                             </div>
                                         </div>
 
-                                        <h3 className="text-lg font-black text-base-content tracking-tight mb-1">
+                                        <h3 className="text-lg font-black text-base-content tracking-tight mb-1 truncate">
                                             {genre.name}
                                         </h3>
                                         <p className="text-[10px] font-bold text-base-content/30 uppercase tracking-widest">
