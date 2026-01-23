@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
+import { useNotification } from '@/context/NotificationContext';
 import {
     BookOpen, LogOut, User, Library, LayoutDashboard, Sun, Moon,
     Search, Youtube, Users, Menu, X, BookText, Tags, MessageSquare
@@ -11,6 +12,7 @@ import { useState, useEffect } from 'react';
 
 const Navbar = () => {
     const { user, logout } = useAuth();
+    const { unreadCount } = useNotification();
     const pathname = usePathname();
     const [theme, setTheme] = useState('light');
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -33,7 +35,18 @@ const Navbar = () => {
         { name: 'Browse Books', href: '/books', icon: <Search size={18} /> },
         { name: 'My Library', href: '/library', icon: <Library size={18} /> },
         { name: 'Tutorials', href: '/tutorials', icon: <Youtube size={18} /> },
-        { name: 'Messages', href: '/chat', icon: <MessageSquare size={18} /> },
+        {
+            name: 'Messages',
+            href: '/chat',
+            icon: (
+                <div className="indicator">
+                    <MessageSquare size={18} />
+                    <span className="badge badge-xs badge-error indicator-item border-none text-white font-bold" style={{ opacity: unreadCount > 0 ? 1 : 0, transform: 'scale(0.8)' }}>
+                        {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                </div>
+            )
+        },
     ];
 
     const adminLinks = [
@@ -140,6 +153,15 @@ const Navbar = () => {
                     >
                         {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
                     </button>
+
+                    <Link href="/chat">
+                        <button className="btn btn-ghost btn-circle btn-sm text-base-content relative">
+                            <MessageSquare size={18} />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-error rounded-full border-2 border-base-100"></span>
+                            )}
+                        </button>
+                    </Link>
 
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}

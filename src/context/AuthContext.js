@@ -9,10 +9,13 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
+    const [token, setToken] = useState(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+        if (storedToken) setToken(storedToken);
         checkUserLoggedIn();
     }, []);
 
@@ -31,7 +34,10 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await api.post('/auth/register', userData);
             const user = res.data.data;
-            if (user.token) localStorage.setItem('token', user.token);
+            if (user.token) {
+                localStorage.setItem('token', user.token);
+                setToken(user.token);
+            }
             setUser(user);
             Swal.fire({
                 icon: 'success',
@@ -51,7 +57,10 @@ export const AuthProvider = ({ children }) => {
         try {
             const res = await api.post('/auth/login', { email, password });
             const user = res.data.data;
-            if (user.token) localStorage.setItem('token', user.token);
+            if (user.token) {
+                localStorage.setItem('token', user.token);
+                setToken(user.token);
+            }
             setUser(user);
             Swal.fire({
                 icon: 'success',
@@ -70,6 +79,7 @@ export const AuthProvider = ({ children }) => {
         try {
             await api.get('/auth/logout');
             localStorage.removeItem('token');
+            setToken(null);
             setUser(null);
             router.push('/login');
         } catch (err) {
@@ -81,7 +91,7 @@ export const AuthProvider = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, register, login, logout, checkUserLoggedIn }}>
+        <AuthContext.Provider value={{ user, token, loading, register, login, logout, checkUserLoggedIn }}>
             {children}
         </AuthContext.Provider>
     );

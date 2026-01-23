@@ -12,6 +12,7 @@
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
     "daisyui": "^5.5.14",
+    "date-fns": "^4.1.0",
     "framer-motion": "^12.26.1",
     "lucide-react": "^0.562.0",
     "next": "16.1.1",
@@ -20,6 +21,7 @@
     "react-hook-form": "^7.71.0",
     "react-pdf": "^10.3.0",
     "recharts": "^3.6.0",
+    "socket.io-client": "^4.8.3",
     "sweetalert2": "^11.26.17",
     "tailwind-merge": "^3.4.0",
     "zod": "^4.3.5"
