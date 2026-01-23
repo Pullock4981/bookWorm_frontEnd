@@ -33,6 +33,7 @@ const Navbar = () => {
         { name: 'Browse Books', href: '/books', icon: <Search size={18} /> },
         { name: 'My Library', href: '/library', icon: <Library size={18} /> },
         { name: 'Tutorials', href: '/tutorials', icon: <Youtube size={18} /> },
+        { name: 'Messages', href: '/chat', icon: <MessageSquare size={18} /> },
     ];
 
     const adminLinks = [
