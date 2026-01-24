@@ -118,7 +118,7 @@ const MyLibrary = () => {
             <div className="flex flex-col min-h-screen bg-base-100">
                 <Navbar />
 
-                <main className="flex-grow max-w-screen-2xl mx-auto px-8 py-12 w-full">
+                <main className="flex-grow w-full px-4 md:px-12 py-12">
                     <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div>
                             <h1 className="text-2xl font-black text-base-content mb-1 tracking-tight">My Library</h1>

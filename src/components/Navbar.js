@@ -62,7 +62,7 @@ const Navbar = () => {
 
     return (
         <div className="navbar bg-base-100/90 backdrop-blur-md sticky top-0 z-[100] border-b border-primary/10">
-            <div className="max-w-screen-2xl mx-auto w-full px-4 md:px-8 h-20 flex items-center justify-between">
+            <div className="w-full px-4 md:px-12 h-20 flex items-center justify-between">
                 {/* START: LOGO */}
                 <div className="flex-none">
                     <Link href={user?.role?.toLowerCase() === 'admin' ? '/admin/dashboard' : '/library'} className="flex items-center gap-2 group">
