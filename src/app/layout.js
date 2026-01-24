@@ -19,6 +19,13 @@ export const metadata = {
   description: "Track your reading progress, discover new books, and join a community of readers.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  interactiveWidget: "resizes-content",
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>

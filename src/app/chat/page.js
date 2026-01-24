@@ -204,6 +204,31 @@ const ChatPage = () => {
         return () => clearTimeout(timeoutId);
     }, [searchQuery]);
 
+    // Handle Mobile Viewport Height (Keyboard resize)
+    const [viewportHeight, setViewportHeight] = useState('100dvh');
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const handleResize = () => {
+            // visualViewport.height gives the actual visible height excluding keyboard
+            if (window.visualViewport) {
+                setViewportHeight(`${window.visualViewport.height}px`);
+            }
+        };
+
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', handleResize);
+            // Initialize
+            handleResize();
+        }
+
+        return () => {
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', handleResize);
+            }
+        };
+    }, []);
+
     // Fetch Messages when active chat changes
     useEffect(() => {
         const loadMessages = async () => {
@@ -350,7 +375,10 @@ const ChatPage = () => {
 
     return (
         <ProtectedRoute>
-            <div className="fixed inset-0 overflow-hidden bg-base-200 flex flex-col relative font-sans">
+            <div
+                className="overflow-hidden bg-base-200 flex flex-col relative font-sans w-full"
+                style={{ height: viewportHeight }}
+            >
                 <Navbar />
 
                 {/* Main Layout Container */}
