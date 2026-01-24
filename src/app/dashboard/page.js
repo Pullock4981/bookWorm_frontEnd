@@ -199,7 +199,7 @@ const UserDashboard = () => {
                                         ) : (
                                             <button
                                                 onClick={() => setIsGoalModalOpen(true)}
-                                                className="btn bg-white text-primary hover:bg-base-100 border-none rounded-xl font-bold px-8"
+                                                className="btn bg-base-100 text-primary hover:bg-base-200 border-none rounded-xl font-bold px-8"
                                             >
                                                 Start Challenge
                                             </button>
@@ -406,7 +406,7 @@ const UserDashboard = () => {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border border-base-content/5">
+                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border-2 border-dashed border-base-content/5">
                                         <p className="text-sm font-bold text-base-content/30 uppercase tracking-[0.2em]">Analyzing reading habits...</p>
                                     </div>
                                 )}
@@ -455,7 +455,7 @@ const UserDashboard = () => {
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border border-base-content/5">
+                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border-2 border-dashed border-base-content/5">
                                         <p className="text-sm font-bold text-base-content/30 uppercase tracking-[0.2em]">No favorites yet.</p>
                                     </div>
                                 )}
@@ -579,7 +579,7 @@ const UserDashboard = () => {
                                                             </div>
                                                             <button
                                                                 onClick={() => handleUnfollow(user._id)}
-                                                                className="btn btn-xs bg-base-200 hover:bg-error/10 hover:text-error border-none text-base-content/60"
+                                                                className="btn btn-xs bg-base-200 hover:bg-error/10 hover:text-error border-none text-base-content/70"
                                                                 title="Unfollow"
                                                             >
                                                                 Unfollow
@@ -623,7 +623,7 @@ const UserDashboard = () => {
                                                             </div>
                                                             <button
                                                                 onClick={() => handleFollow(user._id)}
-                                                                className="btn btn-xs btn-primary rounded-full px-4 font-bold"
+                                                                className="btn btn-xs btn-primary text-white rounded-full px-4 font-bold"
                                                             >
                                                                 Follow
                                                             </button>

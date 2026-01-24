@@ -129,7 +129,7 @@ const MyLibrary = () => {
                                 <button
                                     key={shelf}
                                     onClick={() => setActiveShelf(shelf)}
-                                    className={`flex-1 md:flex-none px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all duration-300 text-xs md:text-sm whitespace-nowrap ${activeShelf === shelf ? 'bg-primary text-primary-content shadow-lg' : 'hover:bg-primary/5 text-base-content/50'}`}
+                                    className={`flex-1 md:flex-none px-3 md:px-6 py-2 md:py-3 rounded-lg md:rounded-xl font-bold transition-all duration-300 text-xs md:text-sm whitespace-nowrap ${activeShelf === shelf ? 'bg-base-content text-base-100 shadow-lg' : 'hover:bg-base-content/10 text-base-content/70 hover:text-base-content'}`}
                                 >
                                     <span className="hidden md:inline">{shelf}</span>
                                     <span className="md:hidden">
@@ -178,7 +178,7 @@ const MyLibrary = () => {
                                                         <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary font-bold text-[9px] uppercase tracking-wider">{item.book?.genre?.name || 'BOOK'}</span>
                                                         <button
                                                             onClick={(e) => { e.preventDefault(); if (item.book?._id) handleRemove(item.book._id); }}
-                                                            className="text-base-content/20 hover:text-error transition-colors disabled:opacity-30"
+                                                            className="text-base-content/50 hover:text-error transition-colors disabled:opacity-30"
                                                             title="Remove from library"
                                                             disabled={!item.book?._id}
                                                         >
@@ -223,14 +223,14 @@ const MyLibrary = () => {
                                                             {item.book?.pdfUrl ? (
                                                                 <Link
                                                                     href={`/books/${item.book?._id}/read`}
-                                                                    className="btn btn-primary btn-sm w-full rounded-lg font-bold text-primary-content shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
+                                                                    className="btn btn-primary btn-sm w-full rounded-lg font-bold text-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
                                                                 >
                                                                     <BookOpen size={14} /> Continue
                                                                 </Link>
                                                             ) : (
                                                                 <Link
                                                                     href={`/books/${item.book?._id}`}
-                                                                    className="btn btn-primary btn-sm w-full rounded-lg font-bold text-primary-content shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
+                                                                    className="btn btn-primary btn-sm w-full rounded-lg font-bold text-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
                                                                 >
                                                                     <BookOpen size={14} /> Continue
                                                                 </Link>
@@ -253,7 +253,7 @@ const MyLibrary = () => {
                                                                     e.preventDefault();
                                                                     handleStartReading(item.book._id);
                                                                 }}
-                                                                className="btn btn-primary btn-sm w-full rounded-lg font-bold text-primary-content shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
+                                                                className="btn btn-primary btn-sm w-full rounded-lg font-bold text-white shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2 h-9 min-h-0"
                                                             >
                                                                 <Flame size={14} /> Start Reading
                                                             </button>
@@ -267,11 +267,11 @@ const MyLibrary = () => {
                             </AnimatePresence>
                         </div>
                     ) : (
-                        <div className="text-center py-24 bg-white/50 rounded-[2rem] border-2 border-dashed border-primary/20">
+                        <div className="text-center py-24 bg-base-200/50 rounded-[2rem] border-2 border-dashed border-base-content/10">
                             <BookOpen size={48} className="mx-auto text-primary/20 mb-4" />
                             <h2 className="text-xl font-black text-neutral">Your "{activeShelf}" shelf is empty</h2>
                             <p className="text-neutral-content/60 text-sm mt-1">Discover your next favorite book and start tracking.</p>
-                            <Link href="/books" className="btn btn-primary btn-sm mt-6 rounded-lg px-6 font-black text-white">
+                            <Link href="/books" className="btn bg-base-content text-base-100 btn-sm mt-6 rounded-lg px-6 font-black hover:bg-base-content/90 border-none">
                                 <Navigation size={14} /> Browse Books
                             </Link>
                         </div>
