@@ -547,13 +547,25 @@ const ChatPage = () => {
                                                                 : 'bg-base-100 border border-base-content/5 text-base-content rounded-tl-sm'
                                                                 }`}>
                                                                 {msg.image && (
-                                                                    <img
-                                                                        src={msg.image}
-                                                                        alt="Shared"
-                                                                        className="rounded-lg max-w-[200px] md:max-w-[280px] object-cover border border-base-content/10 mb-1 cursor-pointer hover:opacity-95 transition-opacity"
-                                                                        loading="lazy"
-                                                                        onClick={() => setExpandedImage(msg.image)}
-                                                                    />
+                                                                    <div className="relative group/image">
+                                                                        <img
+                                                                            src={msg.image}
+                                                                            alt="Shared"
+                                                                            className="rounded-lg max-w-[200px] md:max-w-[280px] object-cover border border-base-content/10 mb-1 cursor-pointer hover:opacity-95 transition-opacity"
+                                                                            loading="lazy"
+                                                                            onClick={() => setExpandedImage(msg.image)}
+                                                                        />
+                                                                        <button
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                handleDownloadImage(msg.image);
+                                                                            }}
+                                                                            className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full opacity-0 group-hover/image:opacity-100 transition-opacity backdrop-blur-sm"
+                                                                            title="Download"
+                                                                        >
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                                                                        </button>
+                                                                    </div>
                                                                 )}
                                                                 {msg.text && <p className="whitespace-pre-wrap break-words">{msg.text}</p>}
                                                             </div>
@@ -660,22 +672,24 @@ const ChatPage = () => {
                                 alt="Expanded"
                                 className="max-h-[85vh] max-w-full rounded-lg shadow-2xl"
                             />
-                            <div className="absolute -top-12 right-0 flex gap-2">
-                                <button
-                                    onClick={() => handleDownloadImage(expandedImage)}
-                                    className="btn btn-circle btn-sm bg-base-100/10 hover:bg-base-100/30 text-white border-none backdrop-blur-md"
-                                    title="Download"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
-                                </button>
-                                <button
-                                    onClick={() => setExpandedImage(null)}
-                                    className="btn btn-circle btn-sm bg-base-100/10 hover:bg-base-100/30 text-white border-none backdrop-blur-md"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-                                </button>
-                            </div>
                         </motion.div>
+
+                        {/* Fixed Controls Container */}
+                        <div className="fixed top-6 right-6 z-[60] flex gap-3">
+                            <button
+                                onClick={() => handleDownloadImage(expandedImage)}
+                                className="btn btn-circle bg-black/50 hover:bg-black/70 text-white border-none backdrop-blur-md"
+                                title="Download"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                            </button>
+                            <button
+                                onClick={() => setExpandedImage(null)}
+                                className="btn btn-circle bg-black/50 hover:bg-black/70 text-white border-none backdrop-blur-md"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                            </button>
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
