@@ -233,6 +233,7 @@ const ChatPage = () => {
     };
 
     const getRecipient = (chat) => {
+        if (!user) return { name: 'Unknown' };
         if (!chat || !chat.members) return { name: 'Unknown' };
         return chat.members.find(m => m._id !== user._id) || { name: 'Unknown' };
     };
