@@ -375,10 +375,7 @@ const ChatPage = () => {
 
     return (
         <ProtectedRoute>
-            <div
-                className="overflow-hidden bg-base-200 flex flex-col relative font-sans w-full"
-                style={{ height: viewportHeight }}
-            >
+            <div className="h-[100dvh] overflow-hidden bg-base-200 flex flex-col relative font-sans">
                 <Navbar />
 
                 {/* Main Layout Container */}
@@ -555,7 +552,7 @@ const ChatPage = () => {
 
                                     {/* Messages Feed */}
                                     <div
-                                        className="flex-grow overflow-y-auto min-h-0 p-4 space-y-4 scroll-smooth bg-[url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png')] bg-fixed"
+                                        className="flex-grow overflow-y-auto min-h-0 p-4 pb-24 space-y-4 scroll-smooth bg-[url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png')] bg-fixed"
                                         style={{ backgroundColor: 'rgba(var(--b1) / 0.5)' }}
                                     >
                                         <AnimatePresence initial={false}>
@@ -613,8 +610,8 @@ const ChatPage = () => {
                                         <div ref={messagesEndRef} />
                                     </div>
 
-                                    {/* Message Input */}
-                                    <div className="p-3 md:p-4 bg-base-100/80 backdrop-blur-md border-t border-base-content/5 z-20">
+                                    {/* Message Input - Fixed at bottom */}
+                                    <div className="fixed bottom-0 left-0 right-0 md:bg-transparent md:static p-3 md:p-4 bg-base-100/80 backdrop-blur-md border-t border-base-content/5 z-20">
                                         {/* Image Preview */}
                                         {attachedImage && (
                                             <div className="flex items-center gap-2 mb-2 bg-base-200/50 p-2 rounded-lg w-fit">
