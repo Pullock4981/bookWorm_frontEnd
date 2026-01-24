@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useNotification } from '@/context/NotificationContext';
 import chatService from '@/services/chatService';
-import { joinConversation, sendMessage, subscribeToMessages } from '@/utils/socket';
+import { joinConversation, sendMessage, subscribeToMessages, subscribeToNotifications } from '@/utils/socket';
 import { Send, Search, User, MessageSquare, MoreVertical, Paperclip, Smile, Image as ImageIcon } from 'lucide-react';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Navbar from '@/components/Navbar';
@@ -108,6 +108,43 @@ const ChatPage = () => {
         }
     }, [user, socket, activeChat?._id]);
 
+    // Handle Global Notifications for Sidebar Updates (for non-active chats)
+    useEffect(() => {
+        if (socket && user) {
+            const unsubscribe = subscribeToNotifications(socket, (err, data) => {
+                if (err) return;
+
+                if (data.type === 'CHAT_MESSAGE') {
+                    setConversations(prev => {
+                        const existing = prev.find(c => c._id === data.conversationId);
+                        if (existing) {
+                            return prev.map(conv => {
+                                if (conv._id === data.conversationId) {
+                                    // If this is the active chat, we ignore this notification because 'receive_message' already handled it
+                                    // AND we don't want to increment unread count for the active chat.
+                                    if (activeChat?._id === data.conversationId) return conv;
+
+                                    return {
+                                        ...conv,
+                                        lastMessage: data.text,
+                                        updatedAt: new Date().toISOString(),
+                                        unreadCount: (conv.unreadCount || 0) + 1
+                                    };
+                                }
+                                return conv;
+                            }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                        } else {
+                            // New conversation started by someone else, fetch to update list
+                            fetchConversations();
+                            return prev;
+                        }
+                    });
+                }
+            });
+            return () => unsubscribe();
+        }
+    }, [user, socket, activeChat]);
+
     // Handle Active Chat & Unread Status
     useEffect(() => {
         if (activeChat) {
@@ -170,12 +207,7 @@ const ChatPage = () => {
         };
         loadMessages();
 
-        if (activeChat) {
-            setActiveChatId(activeChat._id);
-            markAsRead(activeChat._id);
-        }
 
-        return () => setActiveChatId(null);
     }, [activeChat, socket]);
 
     useEffect(() => {

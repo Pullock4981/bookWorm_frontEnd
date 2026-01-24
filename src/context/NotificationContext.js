@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAuth } from './AuthContext';
-import { initiateSocket, disconnectSocket, subscribeToMessages } from '@/utils/socket';
+import { initiateSocket, disconnectSocket, subscribeToMessages, subscribeToNotifications } from '@/utils/socket';
 import api from '@/services/api';
 
 const NotificationContext = createContext();
@@ -26,16 +26,18 @@ export const NotificationProvider = ({ children }) => {
             // Fetch initial unread count
             fetchUnreadCount(token);
 
-            // Subscribe to new messages
-            subscribeToMessages(newSocket, (err, msg) => {
+
+
+            // Subscribe to global notifications (Works even if not in chat room)
+            subscribeToNotifications(newSocket, (err, data) => {
                 if (err) return;
 
-                // If message is NOT from me
-                if (msg.senderId !== user._id) {
+                // If it's a chat message notification
+                if (data.type === 'CHAT_MESSAGE') {
                     setUnreadCount(prev => {
-                        // Check if we are currently viewing this chat using ref
-                        if (activeChatIdRef.current === msg.conversationId) {
-                            return prev; // Already looking at it, don't increment
+                        // If we are currently in that chat, don't increment (ChatPage handles marking as read)
+                        if (activeChatIdRef.current === data.conversationId) {
+                            return prev;
                         }
                         return prev + 1;
                     });

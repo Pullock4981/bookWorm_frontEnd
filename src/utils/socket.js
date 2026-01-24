@@ -55,6 +55,18 @@ export const subscribeToMessages = (socket, cb) => {
 };
 
 /**
+ * Listen for global notifications (for unread counts etc)
+ */
+export const subscribeToNotifications = (socket, cb) => {
+    if (!socket) return;
+    const listener = (data) => {
+        cb(null, data);
+    };
+    socket.on('new_notification', listener);
+    return () => socket.off('new_notification', listener);
+};
+
+/**
  * Listen for typing events
  */
 export const subscribeToTyping = (socket, cb) => {
