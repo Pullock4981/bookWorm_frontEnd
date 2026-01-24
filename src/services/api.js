@@ -1,7 +1,11 @@
 import axios from 'axios';
 
 const getBaseURL = () => {
-    const rawURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    let rawURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    // Remove trailing slash if present
+    if (rawURL.endsWith('/')) {
+        rawURL = rawURL.slice(0, -1);
+    }
     return rawURL.endsWith('/api') ? rawURL : `${rawURL}/api`;
 };
 
