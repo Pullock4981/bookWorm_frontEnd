@@ -586,7 +586,7 @@ const ChatPage = () => {
                                     </div>
 
                                     {/* Message Input */}
-                                    <div className="p-3 md:p-4 bg-base-100/80 backdrop-blur-md border-t border-base-content/5 sticky bottom-0 z-20">
+                                    <div className="p-3 md:p-4 bg-base-100/80 backdrop-blur-md border-t border-base-content/5 z-20">
                                         {/* Image Preview */}
                                         {attachedImage && (
                                             <div className="flex items-center gap-2 mb-2 bg-base-200/50 p-2 rounded-lg w-fit">
