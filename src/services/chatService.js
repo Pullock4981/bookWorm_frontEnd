@@ -1,6 +1,15 @@
 import api from './api';
 
 const chatService = {
+    uploadImage: async (formData) => {
+        const response = await api.post('/chat/upload', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        return response.data;
+    },
+
     /**
      * Get all conversations for the current user
      */

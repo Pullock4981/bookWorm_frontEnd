@@ -36,9 +36,9 @@ export const joinConversation = (socket, conversationId) => {
 /**
  * Send a message via socket
  */
-export const sendMessage = (socket, { conversationId, text, recipientId }) => {
+export const sendMessage = (socket, { conversationId, text, recipientId, image }) => {
     if (socket) {
-        socket.emit('send_message', { conversationId, text, recipientId });
+        socket.emit('send_message', { conversationId, text, recipientId, image });
     }
 };
 

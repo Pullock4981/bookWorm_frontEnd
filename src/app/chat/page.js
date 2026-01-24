@@ -24,6 +24,11 @@ const ChatPage = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searching, setSearching] = useState(false);
+    const [expandedImage, setExpandedImage] = useState(null);
+    // Image Upload State
+    const [uploading, setUploading] = useState(false);
+    const [attachedImage, setAttachedImage] = useState(null); // { url, preview }
+    const fileInputRef = useRef(null);
     const messagesEndRef = useRef(null);
 
     // Fetch Conversations function to be reused
@@ -67,30 +72,39 @@ const ChatPage = () => {
                         // 3. Otherwise add as new message
                         return [...prev, msg];
                     });
-                }
-                // Update last message in conversation list
-                // Update last message in conversation list
-                setConversations(prev => {
-                    const existing = prev.find(c => c._id === msg.conversationId);
-                    if (existing) {
-                        return prev.map(conv => {
-                            if (conv._id === msg.conversationId) {
-                                const isChatActive = activeChat?._id === msg.conversationId;
-                                return {
-                                    ...conv,
-                                    lastMessage: msg.text,
-                                    updatedAt: msg.createdAt,
-                                    unreadCount: isChatActive ? 0 : (conv.unreadCount || 0) + 1
-                                };
-                            }
-                            return conv;
-                        }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-                    } else {
-                        // Re-fetch to get new conversation object
-                        fetchConversations();
-                        return prev;
+
+                    // IF we are in the active chat, mark this new message as read immediately
+                    // BUT only if the message is NOT from me (senderId !== user._id)
+                    // This prevents me from marking my own message as read immediately upon sending
+                    if (activeChat?._id === msg.conversationId && msg.senderId !== user._id) {
+                        markAsRead(msg.conversationId);
+                        // Emit read event to sender
+                        socket.emit('mark_messages_read', { conversationId: msg.conversationId });
                     }
-                });
+                }
+
+                // Update last message in conversation list
+                // ONLY if this is the active chat. 
+                // For inactive chats, 'new_notification' event handles the update (preventing double count)
+                if (activeChat?._id === msg.conversationId) {
+                    setConversations(prev => {
+                        const existing = prev.find(c => c._id === msg.conversationId);
+                        if (existing) {
+                            return prev.map(conv => {
+                                if (conv._id === msg.conversationId) {
+                                    return {
+                                        ...conv,
+                                        lastMessage: msg.text || (msg.image ? 'Sent an image' : 'New message'),
+                                        updatedAt: msg.createdAt,
+                                        unreadCount: 0 // It's active, so no unread count
+                                    };
+                                }
+                                return conv;
+                            }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+                        }
+                        return prev;
+                    });
+                }
             });
 
             // Listen for read receipts
@@ -241,27 +255,68 @@ const ChatPage = () => {
 
     const handleSendMessage = (e) => {
         e.preventDefault();
-        if (!newMessage.trim() || !activeChat || !socket) return;
+        const textContent = newMessage.trim();
+        if ((!textContent && !attachedImage) || !activeChat || !socket) return;
 
         const recipient = getRecipient(activeChat);
 
-        sendMessage(socket, {
+        const messageData = {
             conversationId: activeChat._id,
-            text: newMessage,
-            recipientId: recipient._id
-        });
+            text: textContent,
+            recipientId: recipient._id,
+            image: attachedImage?.url || null
+        };
+
+        sendMessage(socket, messageData);
 
         // Optimistically update messages
         const tempMsg = {
             _id: `temp-${Date.now()}`,
             conversationId: activeChat._id,
             senderId: user._id,
-            text: newMessage,
+            text: textContent,
+            image: attachedImage?.url || null,
             createdAt: new Date().toISOString(),
             isOptimistic: true
         };
         setMessages(prev => [...prev, tempMsg]);
         setNewMessage('');
+        setAttachedImage(null);
+    };
+
+    const handleFileSelect = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        // Validations
+        if (!file.type.startsWith('image/')) {
+            alert('Please select an image file');
+            return;
+        }
+        if (file.size > 5 * 1024 * 1024) { // 5MB limit
+            alert('File size too large (max 5MB)');
+            return;
+        }
+
+        try {
+            setUploading(true);
+            const formData = new FormData();
+            formData.append('image', file);
+
+            const data = await chatService.uploadImage(formData);
+
+            setAttachedImage({
+                url: data.url,
+                preview: URL.createObjectURL(file) // Local preview
+            });
+        } catch (error) {
+            console.error("Upload failed", error);
+            alert("Failed to upload image");
+        } finally {
+            setUploading(false);
+            // Reset input
+            if (fileInputRef.current) fileInputRef.current.value = '';
+        }
     };
 
     const getRecipient = (chat) => {
@@ -272,6 +327,25 @@ const ChatPage = () => {
 
     const handleBackToConversations = () => {
         setActiveChat(null);
+    };
+
+    const handleDownloadImage = async (imageUrl) => {
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `bookworm-image-${Date.now()}.jpg`; // Suggest a filename
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+        } catch (error) {
+            console.error("Download failed", error);
+            // Fallback to opening in new tab if blob fetch fails
+            window.open(imageUrl, '_blank');
+        }
     };
 
     return (
@@ -472,7 +546,16 @@ const ChatPage = () => {
                                                                 ? 'bg-primary text-primary-content rounded-tr-sm'
                                                                 : 'bg-base-100 border border-base-content/5 text-base-content rounded-tl-sm'
                                                                 }`}>
-                                                                {msg.text}
+                                                                {msg.image && (
+                                                                    <img
+                                                                        src={msg.image}
+                                                                        alt="Shared"
+                                                                        className="rounded-lg max-w-[200px] md:max-w-[280px] object-cover border border-base-content/10 mb-1 cursor-pointer hover:opacity-95 transition-opacity"
+                                                                        loading="lazy"
+                                                                        onClick={() => setExpandedImage(msg.image)}
+                                                                    />
+                                                                )}
+                                                                {msg.text && <p className="whitespace-pre-wrap break-words">{msg.text}</p>}
                                                             </div>
                                                             <span className={`text-[10px] font-bold opacity-40 mt-1 px-1 flex items-center gap-1 ${isMine ? 'flex-row-reverse' : 'flex-row'}`}>
                                                                 {format(new Date(msg.createdAt), 'HH:mm')}
@@ -492,6 +575,18 @@ const ChatPage = () => {
 
                                     {/* Message Input */}
                                     <div className="p-3 md:p-4 bg-base-100/80 backdrop-blur-md border-t border-base-content/5 sticky bottom-0 z-20">
+                                        {/* Image Preview */}
+                                        {attachedImage && (
+                                            <div className="flex items-center gap-2 mb-2 bg-base-200/50 p-2 rounded-lg w-fit">
+                                                <img src={attachedImage.preview} alt="Preview" className="w-16 h-16 object-cover rounded-md border border-base-content/10" />
+                                                <button
+                                                    onClick={() => setAttachedImage(null)}
+                                                    className="btn btn-xs btn-circle btn-ghost text-error"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        )}
                                         <form onSubmit={handleSendMessage} className="flex items-end gap-2 w-full">
                                             <div className="flex-grow bg-primary/5 rounded-[1.5rem] flex items-center border border-primary/20 focus-within:border-primary/60 focus-within:bg-primary/10 focus-within:shadow-md transition-all duration-300">
                                                 <button type="button" className="btn btn-ghost btn-circle btn-sm text-primary/70 hover:text-primary m-1">
@@ -504,13 +599,25 @@ const ChatPage = () => {
                                                     placeholder="Type a message..."
                                                     className="input border-none bg-transparent focus:outline-none flex-grow h-12 px-2 text-sm md:text-base placeholder:text-base-content/40 text-base-content"
                                                 />
-                                                <button type="button" className="btn btn-ghost btn-circle btn-sm text-primary/70 hover:text-primary m-1">
-                                                    <Paperclip size={18} />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => fileInputRef.current?.click()}
+                                                    className="btn btn-ghost btn-circle btn-sm text-primary/70 hover:text-primary m-1"
+                                                    disabled={uploading}
+                                                >
+                                                    {uploading ? <span className="loading loading-spinner loading-xs"></span> : <Paperclip size={18} />}
                                                 </button>
+                                                <input
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    onChange={handleFileSelect}
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                />
                                             </div>
                                             <button
                                                 type="submit"
-                                                disabled={!newMessage.trim()}
+                                                disabled={(!newMessage.trim() && !attachedImage) || uploading}
                                                 className="btn btn-circle h-12 w-12 border-none shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all text-white shrink-0 bg-gradient-to-tr from-primary to-accent hover:shadow-xl"
                                             >
                                                 <Send size={20} className={newMessage.trim() ? "ml-0.5" : ""} />
@@ -531,7 +638,48 @@ const ChatPage = () => {
                     </div>
                 </main>
             </div>
-        </ProtectedRoute>
+            {/* Image Lightbox Modal */}
+            <AnimatePresence>
+                {expandedImage && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setExpandedImage(null)}
+                        className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking image
+                            className="relative max-w-full max-h-full"
+                        >
+                            <img
+                                src={expandedImage}
+                                alt="Expanded"
+                                className="max-h-[85vh] max-w-full rounded-lg shadow-2xl"
+                            />
+                            <div className="absolute -top-12 right-0 flex gap-2">
+                                <button
+                                    onClick={() => handleDownloadImage(expandedImage)}
+                                    className="btn btn-circle btn-sm bg-base-100/10 hover:bg-base-100/30 text-white border-none backdrop-blur-md"
+                                    title="Download"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
+                                </button>
+                                <button
+                                    onClick={() => setExpandedImage(null)}
+                                    className="btn btn-circle btn-sm bg-base-100/10 hover:bg-base-100/30 text-white border-none backdrop-blur-md"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </ProtectedRoute >
     );
 };
 
