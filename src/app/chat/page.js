@@ -350,7 +350,7 @@ const ChatPage = () => {
 
     return (
         <ProtectedRoute>
-            <div className="h-[100dvh] overflow-hidden bg-base-200 flex flex-col relative font-sans">
+            <div className="fixed inset-0 overflow-hidden bg-base-200 flex flex-col relative font-sans">
                 <Navbar />
 
                 {/* Main Layout Container */}
@@ -608,6 +608,7 @@ const ChatPage = () => {
                                                     type="text"
                                                     value={newMessage}
                                                     onChange={(e) => setNewMessage(e.target.value)}
+                                                    onFocus={() => setTimeout(scrollToBottom, 300)} // Scroll when keyboard opens
                                                     placeholder="Type a message..."
                                                     className="input border-none bg-transparent focus:outline-none flex-grow h-12 px-2 text-sm md:text-base placeholder:text-base-content/40 text-base-content"
                                                 />
