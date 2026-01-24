@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useAuth } from './AuthContext';
 import { initiateSocket, disconnectSocket, subscribeToMessages } from '@/utils/socket';
-import axios from 'axios';
+import api from '@/services/api';
 
 const NotificationContext = createContext();
 
@@ -57,9 +57,7 @@ export const NotificationProvider = ({ children }) => {
 
     const fetchUnreadCount = async (authToken) => {
         try {
-            const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/unread`, {
-                headers: { Authorization: `Bearer ${authToken}` }
-            });
+            const res = await api.get('/chat/unread');
             setUnreadCount(res.data.count);
         } catch (error) {
             console.error("Failed to fetch unread count", error);
@@ -69,9 +67,7 @@ export const NotificationProvider = ({ children }) => {
     const markAsRead = async (conversationId) => {
         if (!conversationId) return;
         try {
-            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/api/chat/conversations/${conversationId}/read`, {}, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
+            await api.put(`/chat/conversations/${conversationId}/read`);
             // Re-fetch to be accurate (or we could just subtract locally if we knew how many unread were in that chat)
             // Re-fetching is safer.
             fetchUnreadCount(token);
