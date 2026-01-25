@@ -19,7 +19,8 @@ api.interceptors.request.use(
     (config) => {
         if (typeof window !== 'undefined') {
             const token = localStorage.getItem('token');
-            if (token) {
+            // Check if token exists and is not a string "null" or "undefined"
+            if (token && token !== 'null' && token !== 'undefined') {
                 config.headers.Authorization = `Bearer ${token}`;
             }
         }
@@ -34,6 +35,7 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
+        console.error("API Error:", error.response?.config?.url, error.response?.status, error.response?.data);
         const message = error.response?.data?.message || 'Something went wrong. Please try again.';
         return Promise.reject(message);
     }

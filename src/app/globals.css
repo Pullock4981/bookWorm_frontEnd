@@ -58,26 +58,33 @@
 }
 
 [data-theme="dark"] {
-  --color-primary: #E7D8C9;
-  --color-primary-content: #12100E;
-  --color-secondary: #9CA3AF;
-  --color-secondary-content: #12100E;
+  --color-primary: #D4C3A3;
+  /* Premium Champagne/Parchment */
+  --color-primary-content: #1A1110;
+  --color-secondary: #8C9B72;
+  /* Muted Sage */
+  --color-secondary-content: #1A1110;
   --color-accent: #EBB35A;
-  --color-accent-content: #12100E;
-  --color-neutral: #F5F3EE;
-  --color-neutral-content: #12100E;
-  --color-base-100: #12100E;
-  --color-base-200: #1C1917;
-  --color-base-300: #26221F;
-  --color-base-content: #F5F3EE;
+  --color-accent-content: #1A1110;
+  --color-neutral: #2D2422;
+  --color-neutral-content: #F8F4F1;
+  --color-base-100: #1A1110;
+  /* Deep Ebony Coffee */
+  --color-base-200: #241918;
+  --color-base-300: #2D201F;
+  --color-base-content: #F8F4F1;
 
-  --p: #E7D8C9;
-  --s: #9CA3AF;
+  --p: #D4C3A3;
+  --s: #8C9B72;
   --a: #EBB35A;
-  --n: #F5F3EE;
-  --b1: #12100E;
-  --b2: #1C1917;
-  --bc: #F5F3EE;
+  --n: #2D2422;
+  --b1: #1A1110;
+  --b2: #241918;
+  --bc: #F8F4F1;
+}
+
+* {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.1s ease;
 }
 
 body {

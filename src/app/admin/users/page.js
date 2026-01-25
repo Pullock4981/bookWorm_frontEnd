@@ -19,7 +19,7 @@ const ManageUsers = () => {
         try {
             setLoading(true);
             const response = await userService.getAllUsers();
-            setUsers(response.data || []);
+            setUsers(response.data.data || []);
         } catch (error) {
             console.error("Failed to fetch users:", error);
             Swal.fire("Error", "Failed to load users", "error");

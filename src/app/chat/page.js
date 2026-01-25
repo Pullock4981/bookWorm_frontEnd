@@ -249,6 +249,30 @@ const ChatPage = () => {
 
     }, [activeChat, socket]);
 
+    // Handle URL param to start chat automatically
+    const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+    const startChatWith = searchParams ? searchParams.get('startChatWith') : null;
+    const initialChatHandled = useRef(false);
+
+    useEffect(() => {
+        if (startChatWith && !initialChatHandled.current && !loading && conversations) {
+            initialChatHandled.current = true;
+            // First check if chat already exists
+            const existing = conversations.find(c =>
+                c.members.some(m => m._id === startChatWith)
+            );
+
+            if (existing) {
+                setActiveChat(existing);
+            } else {
+                handleStartConversation(startChatWith);
+            }
+
+            // Clean URL
+            window.history.replaceState({}, '', '/chat');
+        }
+    }, [startChatWith, loading, conversations]);
+
     useEffect(() => {
         scrollToBottom();
     }, [messages]);

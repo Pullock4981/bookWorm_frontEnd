@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,6 +13,9 @@ import bookService from "@/services/bookService";
 import reviewService from "@/services/reviewService";
 import libraryService from "@/services/libraryService";
 import favoriteService from "@/services/favoriteService";
+import userService from "@/services/userService";
+import socialService from "@/services/socialService";
+import { MessageCircle } from "lucide-react";
 import Swal from "sweetalert2";
 
 const BookDetails = () => {
@@ -27,6 +31,10 @@ const BookDetails = () => {
     const [addingToShelf, setAddingToShelf] = useState(false);
     const [currentShelf, setCurrentShelf] = useState(null);
     const [isLiked, setIsLiked] = useState(false);
+    const { user: currentUser } = useAuth();
+    const [activeCommentBox, setActiveCommentBox] = useState(null);
+    const [reviewCommentText, setReviewCommentText] = useState("");
+    const [reviewCommentLoading, setReviewCommentLoading] = useState(false);
 
     useEffect(() => {
         if (id) {
@@ -36,6 +44,40 @@ const BookDetails = () => {
             checkLibraryStatus();
         }
     }, [id]);
+
+
+    const handleReviewLike = async (reviewId) => {
+        if (!currentUser) return;
+        try {
+            const res = await reviewService.toggleLike(reviewId);
+            const updatedReview = res.data;
+
+            setReviews(prev => prev.map(rev =>
+                rev._id === reviewId ? { ...rev, likes: updatedReview.likes } : rev
+            ));
+        } catch (error) {
+            console.error("Failed to like review", error);
+        }
+    };
+
+    const handleReviewCommentSubmit = async (reviewId) => {
+        if (!reviewCommentText.trim() || reviewCommentLoading || !currentUser) return;
+        setReviewCommentLoading(true);
+        try {
+            const res = await reviewService.addComment(reviewId, reviewCommentText);
+            const updatedComments = res.data.comments;
+
+            setReviews(prev => prev.map(rev =>
+                rev._id === reviewId ? { ...rev, comments: updatedComments } : rev
+            ));
+            setReviewCommentText("");
+            setActiveCommentBox(null);
+        } catch (error) {
+            console.error("Failed to add comment", error);
+        } finally {
+            setReviewCommentLoading(false);
+        }
+    };
 
     const fetchBookDetails = async () => {
         try {
@@ -379,9 +421,71 @@ const BookDetails = () => {
                                                         <span className="font-black text-sm">{review.rating}</span>
                                                     </div>
                                                 </div>
-                                                <p className="text-base-content/70 font-medium leading-[1.8] italic px-2">
+                                                <p className="text-base-content/70 font-medium leading-[1.8] italic px-2 mb-6">
                                                     "{review.review}"
                                                 </p>
+
+                                                {/* Like & Comment Actions */}
+                                                <div className="flex items-center gap-4 pt-4 border-t border-base-content/5">
+                                                    <button
+                                                        onClick={() => handleReviewLike(review._id)}
+                                                        className={`flex items-center gap-1.5 text-xs font-bold transition-all ${review.likes?.includes(currentUser?._id) ? 'text-red-500' : 'text-base-content/40 hover:text-base-content/60'}`}
+                                                    >
+                                                        <Heart size={16} fill={review.likes?.includes(currentUser?._id) ? "currentColor" : "none"} />
+                                                        {review.likes?.length || 0}
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setActiveCommentBox(activeCommentBox === review._id ? null : review._id)}
+                                                        className="flex items-center gap-1.5 text-xs font-bold text-base-content/40 hover:text-primary transition-all"
+                                                    >
+                                                        <MessageCircle size={16} />
+                                                        {review.comments?.length || 0}
+                                                    </button>
+                                                </div>
+
+                                                {/* Comment Section (Collapsible) */}
+                                                {activeCommentBox === review._id && (
+                                                    <div className="mt-4 space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                                        {/* Existing Comments */}
+                                                        {review.comments?.length > 0 && (
+                                                            <div className="space-y-3 mb-4 max-h-48 overflow-y-auto custom-scrollbar pr-2">
+                                                                {review.comments.map((comment, cIdx) => (
+                                                                    <div key={cIdx} className="bg-base-200/50 p-3 rounded-2xl text-xs flex gap-3">
+                                                                        <div className="avatar shrink-0">
+                                                                            <div className="w-6 h-6 rounded-full">
+                                                                                <img src={comment.user?.photo || `https://ui-avatars.com/api/?name=${comment.user?.name || 'User'}`} alt={comment.user?.name} />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div className="flex-1">
+                                                                            <span className="font-black mr-2 text-base-content/80 text-[10px] uppercase tracking-wider">{comment.user?.name}:</span>
+                                                                            <p className="opacity-70 mt-0.5 leading-relaxed font-medium">{comment.text}</p>
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+
+                                                        {/* Add Comment Input */}
+                                                        <div className="flex gap-2">
+                                                            <input
+                                                                type="text"
+                                                                className="input input-sm input-bordered w-full rounded-xl text-xs bg-base-100"
+                                                                placeholder="Write a comment..."
+                                                                value={reviewCommentText}
+                                                                onChange={(e) => setReviewCommentText(e.target.value)}
+                                                                onKeyDown={(e) => e.key === 'Enter' && handleReviewCommentSubmit(review._id)}
+                                                                autoFocus
+                                                            />
+                                                            <button
+                                                                onClick={() => handleReviewCommentSubmit(review._id)}
+                                                                className="btn btn-sm btn-primary rounded-xl"
+                                                                disabled={reviewCommentLoading || !reviewCommentText.trim()}
+                                                            >
+                                                                {reviewCommentLoading ? <span className="loading loading-spinner loading-xs"></span> : "Send"}
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                )}
                                             </div>
                                         ))
                                     )}

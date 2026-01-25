@@ -29,6 +29,22 @@ const socialService = {
     getFollowing: async () => {
         const response = await api.get('/social/following');
         return response.data;
+    },
+
+    // Get specific user's activity
+    getUserActivity: async (userId) => {
+        const response = await api.get(`/social/activity/${userId}`);
+        return response.data;
+    },
+
+    toggleLike: async (activityId) => {
+        const response = await api.post(`/social/activity/${activityId}/like`);
+        return response.data;
+    },
+
+    addComment: async (activityId, text) => {
+        const response = await api.post(`/social/activity/${activityId}/comment`, { text });
+        return response.data;
     }
 };
 

@@ -29,6 +29,18 @@ const reviewService = {
     deleteReview: async (id) => {
         const response = await api.delete(`/reviews/${id}`);
         return response.data;
+    },
+
+    // User: Like/Unlike review
+    toggleLike: async (id) => {
+        const response = await api.post(`/reviews/${id}/like`);
+        return response.data;
+    },
+
+    // User: Comment on review
+    addComment: async (id, text) => {
+        const response = await api.post(`/reviews/${id}/comment`, { text });
+        return response.data;
     }
 };
 

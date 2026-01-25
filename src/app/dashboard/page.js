@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProtectedRoute from "@/components/ProtectedRoute";
-import { TrendingUp, BookCheck, FileText, Target, Pencil, Trophy, Users, Star, BookOpen, Clock, ChevronRight, Heart, Flame } from "lucide-react";
+import { TrendingUp, BookCheck, FileText, Target, Pencil, Trophy, Users, Star, BookOpen, Clock, ChevronRight, Heart, Flame, MoreVertical, MessageCircle, Eye } from "lucide-react";
 import { motion } from "framer-motion";
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend } from 'recharts';
 import statsService from "@/services/statsService";
 import socialService from "@/services/socialService";
+import userService from "@/services/userService";
 import recommendationService from "@/services/recommendationService";
 import favoriteService from "@/services/favoriteService";
 import Swal from "sweetalert2";
@@ -20,6 +21,8 @@ const UserDashboard = () => {
     const [stats, setStats] = useState(null);
     const [feed, setFeed] = useState([]);
     const [feedPage, setFeedPage] = useState(1);
+    const [discoverPage, setDiscoverPage] = useState(1);
+    const [followingPage, setFollowingPage] = useState(1);
     const [suggestedUsers, setSuggestedUsers] = useState([]);
     const [followingList, setFollowingList] = useState([]);
     const [favorites, setFavorites] = useState([]);
@@ -27,25 +30,45 @@ const UserDashboard = () => {
     const [loading, setLoading] = useState(true);
     const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
     const [goalTarget, setGoalTarget] = useState(30);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [activeCommentBox, setActiveCommentBox] = useState(null); // Activity ID where comment box is open
+    const [commentText, setCommentText] = useState("");
+    const [commentLoading, setCommentLoading] = useState(false);
 
-    const ITEMS_PER_PAGE = 10;
+    const ITEMS_PER_PAGE = 6;
     const totalPages = Math.ceil(feed.length / ITEMS_PER_PAGE);
     const currentFeed = feed.slice((feedPage - 1) * ITEMS_PER_PAGE, feedPage * ITEMS_PER_PAGE);
 
     const fetchData = async () => {
         try {
             setLoading(true);
-            const [statsRes, feedRes, recRes, suggestionsRes, followingRes, favRes] = await Promise.all([
-                statsService.getUserStats(),
-                socialService.getFeed(),
-                recommendationService.getRecommendations(),
-                socialService.getSuggestedUsers(),
-                socialService.getFollowing(),
-                favoriteService.getMyFavorites().catch(() => ({ data: { data: [] } }))
+            const [statsRes, feedRes, recRes, suggestionsRes, followingRes, favRes, userRes] = await Promise.all([
+                statsService.getUserStats().catch(err => { console.error('Stats failed', err); return { data: { data: {} } }; }),
+                socialService.getFeed().catch(err => { console.error('Feed failed', err); return { data: [] }; }),
+                recommendationService.getRecommendations().catch(err => { console.error('Recs failed', err); return { data: [] }; }),
+                socialService.getSuggestedUsers().catch(err => { console.error('Suggestions failed', err); return { data: [] }; }),
+                socialService.getFollowing().catch(err => { console.error('Following failed', err); return { data: [] }; }),
+                favoriteService.getMyFavorites().catch(err => { console.error('Favs failed', err); return { data: { data: [] } }; }),
+                userService.getMe().catch(err => { console.error('User failed', err); return { data: { data: null } }; })
             ]);
 
             setStats(statsRes.data.data);
-            setFeed(feedRes.data || []);
+            setCurrentUser(userRes.data?.data || null);
+
+            // Sort feed by timestamp descending (newest first)
+            const sortedFeed = (feedRes.data || []).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            // Deduplicate feed: Remove repeated actions (same user, book, type, shelf/rating)
+            const seen = new Set();
+            const uniqueFeed = sortedFeed.filter(item => {
+                const key = `${item.user?._id}-${item.book?._id}-${item.type}-${item.shelf || ''}-${item.rating || ''}`;
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+
+            setFeed(uniqueFeed);
+
             setRecommendations(recRes.data || []);
             setSuggestedUsers(suggestionsRes.data || []);
             setFollowingList(followingRes.data || []);
@@ -135,6 +158,53 @@ const UserDashboard = () => {
 
         } catch (error) {
             Swal.fire("Error", "Failed to unfollow user", "error");
+        }
+    };
+
+    const handleLike = async (activityId) => {
+        try {
+            // Optimistic update
+            const updatedFeed = feed.map(item => {
+                if (item.id === activityId) {
+                    const isLiked = item.likes.includes(currentUser._id);
+                    const newLikes = isLiked
+                        ? item.likes.filter(id => id !== currentUser._id)
+                        : [...item.likes, currentUser._id];
+                    return { ...item, likes: newLikes };
+                }
+                return item;
+            });
+            setFeed(updatedFeed);
+
+            await socialService.toggleLike(activityId);
+        } catch (error) {
+            console.error("Like failed", error);
+            fetchData(); // Revert on error
+        }
+    };
+
+    const handleCommentSubmit = async (activityId) => {
+        if (!commentText.trim()) return;
+        setCommentLoading(true);
+        try {
+            const res = await socialService.addComment(activityId, commentText);
+
+            // Update feed with new comment directly from response or optimistically
+            const updatedFeed = feed.map(item => {
+                if (item.id === activityId) {
+                    return { ...item, comments: res.data.comments };
+                }
+                return item;
+            });
+            setFeed(updatedFeed);
+
+            setCommentText("");
+            setActiveCommentBox(null);
+        } catch (error) {
+            console.error("Comment failed", error);
+            Swal.fire("Error", "Failed to post comment", "error");
+        } finally {
+            setCommentLoading(false);
         }
     };
 
@@ -258,7 +328,7 @@ const UserDashboard = () => {
                                                         stroke="none"
                                                     >
                                                         {stats.genreBreakdown.map((entry, index) => (
-                                                            <Cell key={`cell-${index}`} fill={['#8B4513', '#D2B48C', '#DEB887', '#F4A460', '#BC8F8F'][index % 5]} />
+                                                            <Cell key={`cell-${index}`} fill={['#8B4513', '#D2B48C', '#A67C52', '#7A5C3E', '#F4A460'][index % 5]} />
                                                         ))}
                                                     </Pie>
                                                     <Tooltip
@@ -323,7 +393,8 @@ const UserDashboard = () => {
                                                 />
                                                 <Bar
                                                     dataKey="books"
-                                                    fill="#8B4513"
+                                                    fill="currentColor"
+                                                    className="text-primary opacity-60"
                                                     radius={[4, 4, 0, 0]}
                                                     barSize={20}
                                                 />
@@ -486,32 +557,107 @@ const UserDashboard = () => {
 
                                                             {item.type === 'review' ? (
                                                                 <div>
-                                                                    <div className="font-medium text-lg mb-2 flex flex-wrap items-center">
-                                                                        Rated <span className="font-bold text-primary mx-1 truncate max-w-[200px]">"{item.book?.title || 'Unknown Book'}"</span>
-                                                                        <div className="inline-flex items-center ml-2 text-warning gap-1 bg-warning/5 px-2 py-0.5 rounded-lg shrink-0">
-                                                                            <span className="font-bold text-sm">{item.rating}</span> <Star size={12} fill="currentColor" />
-                                                                        </div>
+                                                                    <div className="font-medium text-lg mb-2">
+                                                                        Rated and reviewed
+                                                                        {item.rating && <span className="text-warning ml-2 font-bold">★ {item.rating}</span>}: <Link href={`/books/${item.book?._id || item.book?.id}`} className="font-bold text-primary hover:underline truncate max-w-[200px] inline-block align-bottom">"{item.book?.title || 'Unknown Book'}"</Link>
                                                                     </div>
+                                                                    {item.review && (
+                                                                        <div className="text-sm italic opacity-70 bg-base-200/50 p-3 rounded-xl border-l-4 border-primary/40 mt-2">
+                                                                            "{item.review}"
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                             ) : (
                                                                 <div>
                                                                     <div className="font-medium text-lg mb-2">
-                                                                        {item.shelf === 'Read' ? 'Finished reading' : `Added to ${item.shelf} list`}: <span className="font-bold text-primary truncate max-w-[200px] inline-block align-bottom">"{item.book?.title || 'Unknown Book'}"</span>
+                                                                        {item.shelf === 'Read' ? 'Finished reading' : `Added to ${item.shelf || 'reading'} list`}: <Link href={`/books/${item.book?._id || item.book?.id}`} className="font-bold text-primary hover:underline truncate max-w-[200px] inline-block align-bottom">"{item.book?.title || 'Unknown Book'}"</Link>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            {/* Like & Comment Actions */}
+                                                            <div className="flex items-center gap-4 mt-3 pt-3 border-t border-base-content/5">
+                                                                <button
+                                                                    onClick={async (e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        await handleLike(item.id);
+                                                                    }}
+                                                                    className={`flex items-center gap-1.5 text-xs font-bold transition-all ${item.likes?.includes(currentUser?._id) ? 'text-red-500' : 'text-base-content/40 hover:text-base-content/60'}`}
+                                                                >
+                                                                    <Heart size={16} fill={item.likes?.includes(currentUser?._id) ? "currentColor" : "none"} />
+                                                                    {item.likes?.length || 0}
+                                                                </button>
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.preventDefault();
+                                                                        e.stopPropagation();
+                                                                        setActiveCommentBox(activeCommentBox === item.id ? null : item.id);
+                                                                    }}
+                                                                    className="flex items-center gap-1.5 text-xs font-bold text-base-content/40 hover:text-primary transition-all"
+                                                                >
+                                                                    <MessageCircle size={16} />
+                                                                    {item.comments?.length || 0}
+                                                                </button>
+                                                                <Link
+                                                                    href={`/books/${item.book?._id || item.book?.id}`}
+                                                                    className="flex items-center gap-1.5 text-xs font-bold text-base-content/40 hover:text-secondary transition-all ml-auto"
+                                                                >
+                                                                    <Eye size={16} />
+                                                                    View Activity
+                                                                </Link>
+                                                            </div>
+
+                                                            {/* Comment Section (Collapsible) */}
+                                                            {activeCommentBox === item.id && (
+                                                                <div className="mt-3 space-y-3" onClick={(e) => e.preventDefault()}>
+                                                                    {/* Existing Comments */}
+                                                                    {item.comments?.length > 0 && (
+                                                                        <div className="space-y-2 mb-3 max-h-40 overflow-y-auto custom-scrollbar">
+                                                                            {item.comments.map((comment, cIdx) => (
+                                                                                <div key={cIdx} className="bg-base-200/50 p-2 rounded-lg text-xs">
+                                                                                    <span className="font-bold mr-1">{comment.user?.name}:</span>
+                                                                                    <span className="opacity-80">{comment.text}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    )}
+
+                                                                    {/* Add Comment Input */}
+                                                                    <div className="flex gap-2">
+                                                                        <input
+                                                                            type="text"
+                                                                            className="input input-sm input-bordered w-full rounded-lg text-xs"
+                                                                            placeholder="Write a comment..."
+                                                                            value={commentText}
+                                                                            onChange={(e) => setCommentText(e.target.value)}
+                                                                            onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit(item.id)}
+                                                                            autoFocus
+                                                                        />
+                                                                        <button
+                                                                            onClick={() => handleCommentSubmit(item.id)}
+                                                                            className="btn btn-sm btn-primary rounded-lg"
+                                                                            disabled={commentLoading || !commentText.trim()}
+                                                                        >
+                                                                            Send
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             )}
                                                         </div>
-                                                        {item.book?.coverImage && (
-                                                            <div className="hidden sm:block w-12 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm">
-                                                                <img
-                                                                    src={item.book.coverImage.startsWith('http') ? item.book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${item.book.coverImage}`}
-                                                                    alt={item.book?.title || 'Book cover'}
-                                                                    className="w-full h-full object-cover"
-                                                                    onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?w=200"; }}
-                                                                />
-                                                            </div>
-                                                        )}
+                                                        {
+                                                            item.book?.coverImage && (
+                                                                <Link href={`/books/${item.book?._id || item.book?.id}`} className="hidden sm:block w-12 h-16 rounded-lg overflow-hidden flex-shrink-0 shadow-sm hover:shadow-md transition-all active:scale-95">
+                                                                    <img
+                                                                        src={item.book.coverImage.startsWith('http') ? item.book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${item.book.coverImage}`}
+                                                                        alt={item.book?.title || 'Book cover'}
+                                                                        className="w-full h-full object-cover"
+                                                                        onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?w=200"; }}
+                                                                    />
+                                                                </Link>
+                                                            )
+                                                        }
                                                     </div>
+
                                                 ))}
                                             </div>
 
@@ -550,29 +696,63 @@ const UserDashboard = () => {
 
                                         {followingList.length > 0 ? (
                                             <div className="bg-base-100 p-2 rounded-[2rem] border border-base-content/5 shadow-sm">
-                                                <div className="max-h-[300px] overflow-y-auto custom-scrollbar p-2 space-y-2">
-                                                    {followingList.map((user) => (
+                                                <div className="p-2 space-y-2">
+                                                    {followingList.slice((followingPage - 1) * 5, followingPage * 5).filter(u => u).map((user) => (
                                                         <div key={user._id} className="flex items-center justify-between gap-3 p-2 hover:bg-base-200/50 rounded-2xl transition-colors group">
+                                                            {/* User Info */}
                                                             <div className="flex items-center gap-3 overflow-hidden">
                                                                 <div className="avatar">
                                                                     <div className="w-10 h-10 rounded-full ring-1 ring-base-content/10">
-                                                                        <img src={user.photo || "https://ui-avatars.com/api/?name=" + user.name} alt={user.name} />
+                                                                        <img src={user.photo || "https://ui-avatars.com/api/?name=" + (user.name || 'User')} alt={user.name || 'User'} />
                                                                     </div>
                                                                 </div>
                                                                 <div className="min-w-0">
-                                                                    <p className="font-bold text-sm truncate text-base-content">{user.name}</p>
+                                                                    <p className="font-bold text-sm truncate text-base-content">{user.name || 'User'}</p>
                                                                 </div>
                                                             </div>
-                                                            <button
-                                                                onClick={() => handleUnfollow(user._id)}
-                                                                className="btn btn-xs bg-base-200 hover:bg-error/10 hover:text-error border-none text-base-content/70"
-                                                                title="Unfollow"
-                                                            >
-                                                                Unfollow
-                                                            </button>
+
+                                                            {/* Dropdown Action Menu */}
+                                                            <div className="dropdown dropdown-end">
+                                                                <button tabIndex={0} className="btn btn-ghost btn-circle btn-xs">
+                                                                    <MoreVertical size={16} className="text-base-content/50" />
+                                                                </button>
+                                                                <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-xl bg-base-100 rounded-box w-40 border border-base-content/5">
+                                                                    <li>
+                                                                        <Link href={`/users/${user._id}`} className="font-bold text-xs">
+                                                                            View Profile
+                                                                        </Link>
+                                                                    </li>
+                                                                    <li>
+                                                                        <button onClick={() => handleUnfollow(user._id)} className="font-bold text-xs text-error">
+                                                                            Unfollow
+                                                                        </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
                                                         </div>
                                                     ))}
                                                 </div>
+
+                                                {/* Following Pagination */}
+                                                {followingList.length > 5 && (
+                                                    <div className="flex justify-between items-center px-4 pb-2 pt-2 border-t border-base-content/5">
+                                                        <button
+                                                            className="btn btn-xs btn-ghost"
+                                                            disabled={followingPage === 1}
+                                                            onClick={() => setFollowingPage(prev => Math.max(1, prev - 1))}
+                                                        >
+                                                            Prev
+                                                        </button>
+                                                        <span className="text-[10px] font-bold opacity-40">Page {followingPage} of {Math.ceil(followingList.length / 5)}</span>
+                                                        <button
+                                                            className="btn btn-xs btn-ghost"
+                                                            disabled={followingPage >= Math.ceil(followingList.length / 5)}
+                                                            onClick={() => setFollowingPage(prev => prev + 1)}
+                                                        >
+                                                            Next
+                                                        </button>
+                                                    </div>
+                                                )}
                                             </div>
                                         ) : (
                                             <div className="p-6 bg-base-200/30 rounded-[2rem] border border-base-content/5 text-center dashed-border">
@@ -589,33 +769,69 @@ const UserDashboard = () => {
 
                                         <div className="bg-base-100 p-6 rounded-[2rem] border border-base-content/5 shadow-sm">
                                             {suggestedUsers.length > 0 ? (
-                                                <div className="space-y-6">
-                                                    {suggestedUsers.map((user) => (
-                                                        <div key={user._id} className="flex items-center justify-between gap-3">
-                                                            <div className="flex items-center gap-3 overflow-hidden">
-                                                                <div className="avatar placeholder">
-                                                                    <div className="bg-neutral text-neutral-content rounded-full w-10">
-                                                                        {user.photo ? (
-                                                                            <img src={user.photo} alt={user.name} />
-                                                                        ) : (
-                                                                            <span className="text-xs">{user.name.substring(0, 2).toUpperCase()}</span>
-                                                                        )}
+                                                <>
+                                                    <div className="space-y-6">
+                                                        {suggestedUsers.slice((discoverPage - 1) * 5, discoverPage * 5).filter(u => u).map((user) => (
+                                                            <div key={user._id} className="flex items-center justify-between gap-3 p-1 rounded-xl hover:bg-base-200/30 transition-all">
+                                                                <div className="flex items-center gap-3 overflow-hidden">
+                                                                    <div className="avatar placeholder">
+                                                                        <div className="bg-neutral text-neutral-content rounded-full w-10">
+                                                                            {user.photo ? (
+                                                                                <img src={user.photo} alt={user.name || 'User'} />
+                                                                            ) : (
+                                                                                <span className="text-xs">{(user.name || 'U').substring(0, 2).toUpperCase()}</span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="min-w-0">
+                                                                        <p className="font-bold text-sm truncate text-base-content">{user.name || 'User'}</p>
+                                                                        <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider">Reader</p>
                                                                     </div>
                                                                 </div>
-                                                                <div className="min-w-0">
-                                                                    <p className="font-bold text-sm truncate text-base-content">{user.name}</p>
-                                                                    <p className="text-[10px] font-bold text-base-content/40 uppercase tracking-wider">Reader</p>
+
+                                                                {/* Dropdown Action Menu */}
+                                                                <div className="dropdown dropdown-end">
+                                                                    <button tabIndex={0} className="btn btn-ghost btn-circle btn-xs">
+                                                                        <MoreVertical size={16} className="text-base-content/50" />
+                                                                    </button>
+                                                                    <ul tabIndex={0} className="dropdown-content z-[1] menu p-2 shadow-xl bg-base-100 rounded-box w-40 border border-base-content/5">
+                                                                        <li>
+                                                                            <Link href={`/users/${user._id}`} className="font-bold text-xs">
+                                                                                View Profile
+                                                                            </Link>
+                                                                        </li>
+                                                                        <li>
+                                                                            <button onClick={() => handleFollow(user._id)} className="font-bold text-xs text-primary">
+                                                                                Follow
+                                                                            </button>
+                                                                        </li>
+                                                                    </ul>
                                                                 </div>
                                                             </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* Discover Pagination */}
+                                                    {suggestedUsers.length > 5 && (
+                                                        <div className="flex justify-between items-center mt-6 pt-4 border-t border-base-content/5">
                                                             <button
-                                                                onClick={() => handleFollow(user._id)}
-                                                                className="btn btn-xs btn-primary text-white rounded-full px-4 font-bold"
+                                                                className="btn btn-xs btn-ghost"
+                                                                disabled={discoverPage === 1}
+                                                                onClick={() => setDiscoverPage(prev => Math.max(1, prev - 1))}
                                                             >
-                                                                Follow
+                                                                Prev
+                                                            </button>
+                                                            <span className="text-[10px] font-bold opacity-40">Page {discoverPage} of {Math.ceil(suggestedUsers.length / 5)}</span>
+                                                            <button
+                                                                className="btn btn-xs btn-ghost"
+                                                                disabled={discoverPage >= Math.ceil(suggestedUsers.length / 5)}
+                                                                onClick={() => setDiscoverPage(prev => prev + 1)}
+                                                            >
+                                                                Next
                                                             </button>
                                                         </div>
-                                                    ))}
-                                                </div>
+                                                    )}
+                                                </>
                                             ) : (
                                                 <div className="text-center py-8">
                                                     <p className="text-sm text-base-content/40 font-medium">No new suggestions.</p>
@@ -634,61 +850,60 @@ const UserDashboard = () => {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Goal Modal */}
+                            {
+                                isGoalModalOpen && (
+                                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
+                                        <div className="bg-base-100 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl animate-in zoom-in-95">
+                                            <h3 className="text-2xl font-black text-base-content mb-2">Set Annual Goal</h3>
+                                            <p className="text-base-content/60 text-sm mb-6">How many books do you want to read in {new Date().getFullYear()}?</p>
+
+                                            <form onSubmit={handleSetGoal}>
+                                                <div className="flex items-center gap-4 mb-8">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-circle btn-ghost bg-base-200"
+                                                        onClick={() => setGoalTarget(Math.max(1, goalTarget - 1))}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <div className="flex-1 text-center">
+                                                        <span className="text-4xl font-black text-primary">{goalTarget}</span>
+                                                        <span className="block text-xs font-bold uppercase text-base-content/30 mt-1">Books</span>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-circle btn-ghost bg-base-200"
+                                                        onClick={() => setGoalTarget(goalTarget + 1)}
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+
+                                                <div className="space-y-3">
+                                                    <button type="submit" className="btn btn-primary w-full rounded-xl font-bold text-lg shadow-lg shadow-primary/20">
+                                                        Save Goal
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-ghost w-full rounded-xl font-bold"
+                                                        onClick={() => setIsGoalModalOpen(false)}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                )
+                            }
                         </>
-                    )
-                    }
-
-                    {/* Goal Modal */}
-                    {
-                        isGoalModalOpen && (
-                            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in">
-                                <div className="bg-base-100 w-full max-w-sm p-8 rounded-[2.5rem] shadow-2xl animate-in zoom-in-95">
-                                    <h3 className="text-2xl font-black text-base-content mb-2">Set Annual Goal</h3>
-                                    <p className="text-base-content/60 text-sm mb-6">How many books do you want to read in {new Date().getFullYear()}?</p>
-
-                                    <form onSubmit={handleSetGoal}>
-                                        <div className="flex items-center gap-4 mb-8">
-                                            <button
-                                                type="button"
-                                                className="btn btn-circle btn-ghost bg-base-200"
-                                                onClick={() => setGoalTarget(Math.max(1, goalTarget - 1))}
-                                            >
-                                                -
-                                            </button>
-                                            <div className="flex-1 text-center">
-                                                <span className="text-4xl font-black text-primary">{goalTarget}</span>
-                                                <span className="block text-xs font-bold uppercase text-base-content/30 mt-1">Books</span>
-                                            </div>
-                                            <button
-                                                type="button"
-                                                className="btn btn-circle btn-ghost bg-base-200"
-                                                onClick={() => setGoalTarget(goalTarget + 1)}
-                                            >
-                                                +
-                                            </button>
-                                        </div>
-
-                                        <div className="space-y-3">
-                                            <button type="submit" className="btn btn-primary w-full rounded-xl font-bold text-lg shadow-lg shadow-primary/20">
-                                                Save Goal
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="btn btn-ghost w-full rounded-xl font-bold"
-                                                onClick={() => setIsGoalModalOpen(false)}
-                                            >
-                                                Cancel
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        )
-                    }
-                </main >
+                    )}
+                </main>
                 <Footer />
-            </div >
-        </ProtectedRoute >
+            </div>
+        </ProtectedRoute>
     );
 };
 
