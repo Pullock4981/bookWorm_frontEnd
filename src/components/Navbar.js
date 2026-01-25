@@ -123,6 +123,7 @@ const Navbar = () => {
                                         <span className="text-[9px] uppercase font-black text-primary tracking-widest">{user.role}</span>
                                     </div>
                                 </div>
+                                <li><Link href="/profile" className="py-3 font-bold hover:bg-primary/5 rounded-lg text-base-content"><User size={18} /> My Profile</Link></li>
                                 {user.role?.toLowerCase() !== 'admin' && (
                                     <li><Link href="/library" className="py-3 font-bold hover:bg-primary/5 rounded-lg text-base-content"><Library size={18} /> My Library</Link></li>
                                 )}
@@ -209,6 +210,13 @@ const Navbar = () => {
                                     <span className="text-[10px] uppercase font-bold text-primary">{user.role}</span>
                                 </div>
                             </div>
+                            <Link
+                                href="/profile"
+                                onClick={() => setIsMenuOpen(false)}
+                                className="btn btn-ghost btn-block justify-start rounded-xl font-bold mb-2 gap-3 border border-base-content/5"
+                            >
+                                <User size={18} /> My Profile
+                            </Link>
                             <button
                                 onClick={() => { logout(); setIsMenuOpen(false); }}
                                 className="btn btn-error btn-block rounded-xl font-black gap-2 shadow-lg shadow-error/20"

@@ -17,18 +17,18 @@
   --color-accent-content: #FFFFFF;
   --color-neutral: #2E2E2E;
   --color-neutral-content: #FAF7F2;
-  --color-base-100: #FAF7F2;
-  --color-base-200: #FFFFFF;
-  --color-base-300: #E6E2DB;
-  --color-base-content: #2E2E2E;
+  --color-base-100: #FFFFFF;
+  --color-base-200: #F3F4F6;
+  --color-base-300: #E5E7EB;
+  --color-base-content: #1F2937;
 
   --p: #4B2E2B;
   --s: #7A8450;
   --a: #D9A441;
-  --n: #2E2E2E;
-  --b1: #FAF7F2;
-  --b2: #FFFFFF;
-  --bc: #2E2E2E;
+  --n: #1F2937;
+  --b1: #FFFFFF;
+  --b2: #F3F4F6;
+  --bc: #1F2937;
 }
 
 /* Dark Mode Variables */

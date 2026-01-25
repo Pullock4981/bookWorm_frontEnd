@@ -334,32 +334,32 @@ const UserDashboard = () => {
                             </div>
 
                             {/* Minimal Personalized Recommendations Section */}
-                            <section className="mb-20">
-                                <div className="flex items-end justify-between mb-10 px-2">
+                            <section className="mb-12">
+                                <div className="flex items-end justify-between mb-6 px-2">
                                     <div>
-                                        <h2 className="text-xl font-black text-base-content tracking-tight mb-1">Curated For You</h2>
+                                        <h2 className="text-lg font-black text-base-content tracking-tight mb-1">Curated For You</h2>
                                         <div className="h-1 w-12 bg-primary rounded-full"></div>
                                     </div>
-                                    <Link href="/books" className="text-xs font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
+                                    <Link href="/books" className="text-[10px] font-bold uppercase tracking-widest text-primary/60 hover:text-primary transition-colors">
                                         View Collection
                                     </Link>
                                 </div>
 
                                 {recommendations.length > 0 ? (
-                                    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-x-6 gap-y-10">
-                                        {recommendations.map((book) => (
+                                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                        {recommendations.slice(0, 8).map((book) => (
                                             <Link
                                                 href={`/books/${book._id}`}
                                                 key={book._id}
                                                 className="group/card block"
                                             >
-                                                {/* Professional Minimal Card */}
-                                                <div className="relative aspect-[3/4] rounded-2xl overflow-hidden bg-base-200 shadow-md group-hover/card:shadow-2xl group-hover/card:-translate-y-2 transition-all duration-300">
+                                                {/* Professional Minimal Card - Landscape */}
+                                                <div className="relative aspect-video rounded-xl overflow-hidden bg-base-200 shadow-sm group-hover/card:shadow-md group-hover/card:-translate-y-1 transition-all duration-300">
                                                     {book.coverImage && (
                                                         <img
                                                             src={book.coverImage.startsWith('http') ? book.coverImage : `${process.env.NEXT_PUBLIC_API_URL}${book.coverImage}`}
                                                             alt={book.title}
-                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-110"
+                                                            className="w-full h-full object-cover transition-transform duration-500 group-hover/card:scale-105"
                                                             onError={(e) => {
                                                                 e.target.onerror = null;
                                                                 e.target.src = "https://images.unsplash.com/photo-1543004457-450c18290c41?q=80&w=600&auto=format&fit=crop";
@@ -367,47 +367,33 @@ const UserDashboard = () => {
                                                         />
                                                     )}
 
-                                                    <div className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-300">
-                                                        <div className="flex items-center gap-1 text-white font-black text-[10px] uppercase tracking-wider">
-                                                            <Star size={10} className="text-warning" fill="currentColor" />
-                                                            {book.averageRating?.toFixed(1) || '0.0'}
+                                                    {/* Genre Badge */}
+                                                    <div className="absolute top-2 left-2 z-10">
+                                                        <div className="bg-base-100/90 backdrop-blur-sm px-2 py-1 rounded-md text-[8px] font-black uppercase tracking-wider shadow-sm text-base-content/80">
+                                                            {typeof book.genre === 'object' ? book.genre.name : (book.genre || 'Book')}
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Rating Badge */}
+                                                    <div className="absolute top-2 right-2 z-10">
+                                                        <div className="bg-black/80 backdrop-blur-sm px-1.5 py-0.5 rounded-md text-[9px] font-black flex items-center gap-0.5 shadow-sm text-white">
+                                                            <Star size={8} className="text-warning" fill="currentColor" /> {book.averageRating?.toFixed(1) || '0.0'}
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                <div className="mt-3 px-1">
-                                                    <h3 className="font-bold text-[11px] md:text-xs text-base-content leading-tight mb-1 truncate">{book.title}</h3>
-                                                    <div className="flex items-center justify-between">
-                                                        <p className="text-[10px] text-base-content/40 font-medium truncate max-w-[70%]">
-                                                            {book.author}
-                                                        </p>
-
-                                                        {/* Recommendation Reason Tooltip */}
-                                                        {book.recommendationReason && (
-                                                            <div className="relative group/reason z-20" onClick={(e) => e.preventDefault()}>
-                                                                <div className="cursor-help opacity-40 hover:opacity-100 transition-opacity">
-                                                                    <div className="badge badge-xs badge-ghost border-primary/20 bg-primary/5 hover:bg-primary/10 px-1">
-                                                                        <span className="text-[8px] font-black uppercase tracking-wider text-primary">Why?</span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className="absolute bottom-full right-0 mb-3 w-56 bg-base-300/95 backdrop-blur-xl text-base-content p-4 rounded-2xl shadow-2xl border border-base-content/10 text-[10px] leading-relaxed font-medium opacity-0 invisible group-hover/reason:opacity-100 group-hover/reason:visible transition-all duration-300 pointer-events-none transform translate-y-3 group-hover/reason:translate-y-0 z-50">
-                                                                    <div className="absolute -bottom-1.5 right-4 w-3 h-3 bg-base-300/95 rotate-45 border-r border-b border-base-content/10"></div>
-                                                                    <span className="block font-black text-primary mb-1 text-[9px] uppercase tracking-widest">
-                                                                        {book.recommendationReason.includes('preference') ? 'Personalized Match' : 'Curated Choice'}
-                                                                    </span>
-                                                                    {book.recommendationReason}
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                <div className="mt-2 px-1">
+                                                    <h3 className="font-bold text-xs text-base-content leading-tight mb-0.5 truncate">{book.title}</h3>
+                                                    <p className="text-[10px] text-base-content/50 font-medium truncate">
+                                                        {book.author}
+                                                    </p>
                                                 </div>
                                             </Link>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="bg-base-200/50 p-16 rounded-[3rem] text-center border-2 border-dashed border-base-content/5">
-                                        <p className="text-sm font-bold text-base-content/30 uppercase tracking-[0.2em]">Analyzing reading habits...</p>
+                                    <div className="bg-base-200/50 p-8 rounded-2xl text-center border border-dashed border-base-content/5">
+                                        <p className="text-xs font-bold text-base-content/30 uppercase tracking-widest">Analyzing reading habits...</p>
                                     </div>
                                 )}
                             </section>
